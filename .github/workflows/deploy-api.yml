@@ -63,5 +63,5 @@ jobs:
 
     - name: Database check
       run: |
-        curl -f ${{ secrets.FLY_APP_URL }}/db-check || exit 1
+        curl -f ${{ secrets.FLY_APP_URL }}/dbcheck || exit 1
 

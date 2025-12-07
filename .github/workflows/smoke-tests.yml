@@ -1,0 +1,55 @@
+name: Smoke Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_run:
+    workflows: ["Deploy API", "Deploy Web"]
+    types:
+      - completed
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Test static site
+      run: |
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.GITHUB_PAGES_URL || "https://kingkeamo.github.io/tournament-app" }})
+        if [ "$STATUS" -ne 200 ]; then
+          echo "Static site returned status $STATUS"
+          exit 1
+        fi
+        echo "Static site is accessible"
+
+    - name: Test API health endpoint
+      run: |
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL || "https://tournament-app-dev.fly.dev" }}/health)
+        if [ "$STATUS" -ne 200 ]; then
+          echo "API health endpoint returned status $STATUS"
+          exit 1
+        fi
+        echo "API health endpoint is accessible"
+
+    - name: Test API database check
+      run: |
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL || "https://tournament-app-dev.fly.dev" }}/db-check)
+        if [ "$STATUS" -ne 200 ]; then
+          echo "API database check returned status $STATUS"
+          exit 1
+        fi
+        echo "API database check passed"
+
+    - name: Validate Cognito OpenID configuration
+      run: |
+        COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN || "tournament-app-dev.auth.eu-west-2.amazoncognito.com" }}
+        OPENID_CONFIG=$(curl -s https://${COGNITO_DOMAIN}/.well-known/openid-configuration)
+        if [ -z "$OPENID_CONFIG" ] || echo "$OPENID_CONFIG" | grep -q "error"; then
+          echo "Cognito OpenID configuration is not accessible"
+          exit 1
+        fi
+        echo "Cognito OpenID configuration is valid"

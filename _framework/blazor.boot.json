@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "TournamentApp.Web",
   "resources": {
-    "hash": "sha256-lT7/XpKykcCgqDtuUecXFSjCz0P8d1SbLj5PU6W3RbA=",
+    "hash": "sha256-YciseWov9s4lR/xoUolTsFvOZ7EDrhJ2mvXl1pHF5Gc=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-vtotCeXt2UD6oc459laJT32vBgigZ+eLoUmdeFkvYDk="
     },
@@ -63,8 +63,8 @@
       "System.Text.Encodings.Web.wasm": "sha256-ZfCb2TSGxncfpyCkdqhIDqbsmxhl1+L2kv26ZWtTdWE=",
       "System.Text.Json.wasm": "sha256-lF2KvvgxZpF7V7WkciPa5xdQi/7aEVa9TPlAUjdX4+I=",
       "System.Text.RegularExpressions.wasm": "sha256-6Svgus/BROZUSk7QH5htrkx5RJTdTYK1f60Uj5S1MQE=",
-      "TournamentApp.Shared.wasm": "sha256-2cOOatxyVjvpdW3X6Qv8eVePEAzItSgnA+GHOJVROGY=",
-      "TournamentApp.Web.wasm": "sha256-d6B4jteoPkDfqi1cVBkX46uu/+qRje9UlQtJv+80vlE="
+      "TournamentApp.Shared.wasm": "sha256-6QnWSWypEQj01VhmDys/V7lkn99iAdwLuS5hDbW+UT4=",
+      "TournamentApp.Web.wasm": "sha256-72ZMXeuWSq1CBfWgtTLJw17MW1A0nZlUclajuPuThu8="
     }
   },
   "cacheBootResources": true,

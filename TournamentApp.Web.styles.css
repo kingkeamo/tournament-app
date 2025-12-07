@@ -1,4 +1,4 @@
-/* /Layout/MainLayout.razor.rz.scp.css */
+/* tournament-app/Layout/MainLayout.razor.rz.scp.css */
 .page[b-td4a6xqdmb] {
     position: relative;
     display: flex;
@@ -76,7 +76,7 @@ main[b-td4a6xqdmb] {
         padding-right: 1.5rem !important;
     }
 }
-/* /Layout/NavMenu.razor.rz.scp.css */
+/* tournament-app/Layout/NavMenu.razor.rz.scp.css */
 .navbar-toggler[b-yntgf5hodu] {
     background-color: rgba(255, 255, 255, 0.1);
 }

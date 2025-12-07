@@ -63,22 +63,20 @@ jobs:
         sed -i "s|</body>|${REDIRECT_SCRIPT}</body>|" "${DEPLOY_DIR}/index.html"
         
         # Create 404.html with redirect script
-        cat > "${DEPLOY_DIR}/404.html" << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>Redirecting...</title>
-    <script>
-        var path = window.location.pathname;
-        var repoName = path.split('/')[1] || 'tournament-app';
-        sessionStorage.redirect = path;
-        window.location.replace('/' + repoName + '/index.html');
-    </script>
-</head>
-<body></body>
-</html>
-EOF
+        echo '<!DOCTYPE html>' > "${DEPLOY_DIR}/404.html"
+        echo '<html>' >> "${DEPLOY_DIR}/404.html"
+        echo '<head>' >> "${DEPLOY_DIR}/404.html"
+        echo '    <meta charset="utf-8" />' >> "${DEPLOY_DIR}/404.html"
+        echo '    <title>Redirecting...</title>' >> "${DEPLOY_DIR}/404.html"
+        echo '    <script>' >> "${DEPLOY_DIR}/404.html"
+        echo '        var path = window.location.pathname;' >> "${DEPLOY_DIR}/404.html"
+        echo '        var repoName = path.split("/")[1] || "tournament-app";' >> "${DEPLOY_DIR}/404.html"
+        echo '        sessionStorage.redirect = path;' >> "${DEPLOY_DIR}/404.html"
+        echo '        window.location.replace("/" + repoName + "/index.html");' >> "${DEPLOY_DIR}/404.html"
+        echo '    </script>' >> "${DEPLOY_DIR}/404.html"
+        echo '</head>' >> "${DEPLOY_DIR}/404.html"
+        echo '<body></body>' >> "${DEPLOY_DIR}/404.html"
+        echo '</html>' >> "${DEPLOY_DIR}/404.html"
         
         # Create .nojekyll file
         touch "${DEPLOY_DIR}/.nojekyll"

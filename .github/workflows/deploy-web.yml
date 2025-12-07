@@ -12,8 +12,7 @@ on:
           - prod
   push:
     branches:
-      - main      # Deploys to dev
-      - production # Deploys to prod (if you create this branch)
+      - main
     paths:
       - 'src/TournamentApp.Web/**'
 
@@ -27,173 +26,65 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore src/TournamentApp.Web/TournamentApp.Web.csproj
-
-    - name: Build Blazor WASM
+    - name: Build and publish
       run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish
       env:
         API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
-    - name: Verify publish output
+    - name: Prepare for GitHub Pages
       run: |
-        echo "Publish directory contents:"
-        ls -la publish/
-        echo ""
-        echo "Looking for index.html:"
-        find publish -name "index.html" -type f
-        echo ""
-        if [ -d "publish/wwwroot" ]; then
-          echo "wwwroot directory contents:"
-          ls -la publish/wwwroot/
-          echo ""
-          echo "Checking for _framework folder in wwwroot:"
-          ls -la publish/wwwroot/_framework/ 2>/dev/null || echo "_framework folder not found in wwwroot"
-          echo ""
-          echo "Checking for css folder in wwwroot:"
-          ls -la publish/wwwroot/css/ 2>/dev/null || echo "css folder not found in wwwroot"
-          echo ""
-          echo "Checking for _content folder in wwwroot:"
-          ls -la publish/wwwroot/_content/ 2>/dev/null || echo "_content folder not found in wwwroot"
-          echo ""
-          echo "All files in wwwroot (first 30):"
-          find publish/wwwroot -type f | head -30
-        else
-          echo "Checking for _framework folder:"
-          ls -la publish/_framework/ 2>/dev/null || echo "_framework folder not found"
-          echo ""
-          echo "Top-level files in publish:"
-          ls -1 publish/ | head -20
-        fi
-
-    - name: Prepare deployment files
-      id: prepare
-      run: |
-        # Blazor WASM publishes to wwwroot subfolder, so we need to deploy from there
-        if [ -d "publish/wwwroot" ]; then
-          echo "Found wwwroot folder, using it for deployment"
-          DEPLOY_DIR="publish/wwwroot"
-        elif [ -f "publish/index.html" ]; then
-          echo "Found index.html at root, using root for deployment"
-          DEPLOY_DIR="publish"
-        else
-          echo "Error: index.html not found in expected locations"
-          exit 1
-        fi
-        
-        # Update base href for GitHub Pages subdirectory hosting
+        DEPLOY_DIR="publish/wwwroot"
         REPO_NAME="${{ github.event.repository.name }}"
         BASE_HREF="/${REPO_NAME}/"
+        
+        echo "Repository name: ${REPO_NAME}"
         echo "Setting base href to: ${BASE_HREF}"
-        # Show what we're looking for
-        echo "Current base href in index.html:"
+        
+        # Show current base href
+        echo "Current base href:"
         grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "base href not found"
-        # Replace base href using sed with alternative delimiter to avoid forward slash issues
+        
+        # Update base href - try multiple patterns to be sure
         sed -i "s|<base href=\"/\" />|<base href=\"${BASE_HREF}\" />|g" "${DEPLOY_DIR}/index.html"
-        # Also handle case where there might be no space before />
-        sed -i "s|<base href=\"/\"/>|<base href=\"${BASE_HREF}\"/>|g" "${DEPLOY_DIR}/index.html"
-        # Verify the change was applied
-        echo "Updated base href in index.html:"
-        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "WARNING: base href not found in index.html"
-        # Double-check by showing the actual line
-        echo "Actual base href line:"
-        grep -i "base href" "${DEPLOY_DIR}/index.html" | head -1
+        sed -i "s|<base href=\"/\">|<base href=\"${BASE_HREF}\">|g" "${DEPLOY_DIR}/index.html"
         
-        # Create 404.html for SPA routing
-        cp "${DEPLOY_DIR}/index.html" "${DEPLOY_DIR}/404.html"
+        # Verify it was updated
+        echo "Updated base href:"
+        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "ERROR: base href not found after update"
         
-        # Create .nojekyll to disable Jekyll processing (required for Blazor WASM)
+        # Add redirect script to index.html for SPA routing (before closing body tag)
+        REDIRECT_SCRIPT='<script>(function(){var redirect=sessionStorage.redirect;delete sessionStorage.redirect;if(redirect&&redirect!=location.href){history.replaceState(null,null,redirect);}})();</script>'
+        sed -i "s|</body>|${REDIRECT_SCRIPT}</body>|" "${DEPLOY_DIR}/index.html"
+        
+        # Create 404.html with redirect script
+        cat > "${DEPLOY_DIR}/404.html" << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Redirecting...</title>
+    <script>
+        var path = window.location.pathname;
+        var repoName = path.split('/')[1] || 'tournament-app';
+        sessionStorage.redirect = path;
+        window.location.replace('/' + repoName + '/index.html');
+    </script>
+</head>
+<body></body>
+</html>
+EOF
+        
+        # Create .nojekyll file
         touch "${DEPLOY_DIR}/.nojekyll"
-        
-        echo "Deployment files prepared in: ${DEPLOY_DIR}"
-        echo "deploy_dir=${DEPLOY_DIR}" >> $GITHUB_OUTPUT
-        echo ""
-        echo "Verifying required files exist:"
-        [ -f "${DEPLOY_DIR}/index.html" ] && echo "✓ index.html" || echo "✗ index.html MISSING"
-        [ -f "${DEPLOY_DIR}/404.html" ] && echo "✓ 404.html" || echo "✗ 404.html MISSING"
-        [ -f "${DEPLOY_DIR}/.nojekyll" ] && echo "✓ .nojekyll" || echo "✗ .nojekyll MISSING"
-        [ -d "${DEPLOY_DIR}/_framework" ] && echo "✓ _framework/ directory" || echo "✗ _framework/ directory MISSING"
-        [ -f "${DEPLOY_DIR}/_framework/blazor.webassembly.js" ] && echo "✓ _framework/blazor.webassembly.js" || echo "✗ _framework/blazor.webassembly.js MISSING"
-        [ -d "${DEPLOY_DIR}/css" ] && echo "✓ css/ directory" || echo "✗ css/ directory MISSING"
-        [ -f "${DEPLOY_DIR}/css/bootstrap/bootstrap.min.css" ] && echo "✓ css/bootstrap/bootstrap.min.css" || echo "✗ css/bootstrap/bootstrap.min.css MISSING"
-        [ -d "${DEPLOY_DIR}/_content" ] && echo "✓ _content/ directory" || echo "✗ _content/ directory MISSING"
-        [ -f "${DEPLOY_DIR}/_content/MudBlazor/MudBlazor.min.css" ] && echo "✓ _content/MudBlazor/MudBlazor.min.css" || echo "✗ _content/MudBlazor/MudBlazor.min.css MISSING"
-        [ -f "${DEPLOY_DIR}/_content/MudBlazor/MudBlazor.min.js" ] && echo "✓ _content/MudBlazor/MudBlazor.min.js" || echo "✗ _content/MudBlazor/MudBlazor.min.js MISSING"
-        echo ""
-        echo "Total files to deploy:"
-        find "${DEPLOY_DIR}" -type f | wc -l
-
-    - name: List files before deployment
-      run: |
-        DEPLOY_DIR="${{ steps.prepare.outputs.deploy_dir }}"
-        echo "Files in deploy directory (${DEPLOY_DIR}):"
-        find "${DEPLOY_DIR}" -type f | head -50
-        echo ""
-        echo "Directory structure:"
-        tree "${DEPLOY_DIR}" -L 3 || find "${DEPLOY_DIR}" -type d | head -20
-        echo ""
-        echo "File count by type:"
-        find "${DEPLOY_DIR}" -type f | wc -l
-        echo "Directory count:"
-        find "${DEPLOY_DIR}" -type d | wc -l
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./publish/wwwroot
-        cname: false
-        keep_files: false
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        full_commit_message: 'Deploy Blazor WebAssembly app to GitHub Pages'
-
-    - name: Verify deployment
-      run: |
-        echo "Waiting for GitHub Pages to update..."
-        sleep 5
-        echo "Check the gh-pages branch to verify files were deployed:"
-        echo "https://github.com/${{ github.repository }}/tree/gh-pages"
-        echo ""
-        echo "Expected files in gh-pages branch:"
-        echo "- index.html"
-        echo "- 404.html"
-        echo "- .nojekyll"
-        echo "- _framework/ (folder with blazor.webassembly.js)"
-        echo "- css/ (folder with bootstrap.min.css and app.css)"
-        echo "- _content/ (folder with MudBlazor files)"
-        echo "- TournamentApp.Web.styles.css"
-
-    - name: Validate homepage
-      run: |
-        sleep 15
-        # Try environment variable first, then secret
-        WEB_URL="${{ vars.WEB_APP_URL }}"
-        if [ -z "$WEB_URL" ]; then
-          WEB_URL="${{ secrets.WEB_APP_URL }}"
-        fi
-        if [ -z "$WEB_URL" ]; then
-          echo "Error: WEB_APP_URL is not set or is empty"
-          echo "Please set WEB_APP_URL as an environment variable or secret in the dev environment"
-          exit 1
-        fi
-        echo "Validating URL: $WEB_URL"
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
-        echo "HTTP Status: $STATUS"
-        if [ "$STATUS" -ne 200 ]; then
-          echo "Warning: Homepage returned status $STATUS"
-          echo "This might be normal if GitHub Pages is still deploying (can take a few minutes)"
-          echo "You can manually check: $WEB_URL"
-          # Don't fail the workflow - GitHub Pages can take time to propagate
-        else
-          echo "Homepage is accessible!"
-        fi
-

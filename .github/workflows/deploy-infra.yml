@@ -1,0 +1,85 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+  push:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+
+env:
+  AWS_REGION: eu-west-2
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.0
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Terraform Init
+      working-directory: infra/environments/${{ github.event.inputs.environment || 'dev' }}
+      run: |
+        terraform init \
+          -backend-config="bucket=tournament-app-terraform-state" \
+          -backend-config="key=${{ github.event.inputs.environment || 'dev' }}/terraform.tfstate" \
+          -backend-config="region=${{ env.AWS_REGION }}" \
+          -backend-config="dynamodb_table=tournament-app-terraform-locks"
+
+    - name: Terraform Plan
+      working-directory: infra/environments/${{ github.event.inputs.environment || 'dev' }}
+      run: |
+        terraform plan \
+          -var-file=main.tfvars \
+          -var="neon_api_key=${{ secrets.NEON_API_KEY }}" \
+          -var="github_token=${{ secrets.GITHUB_TOKEN }}" \
+          -var="fly_api_token=${{ secrets.FLY_API_TOKEN }}" \
+          -out=tfplan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+      working-directory: infra/environments/${{ github.event.inputs.environment || 'dev' }}
+      run: terraform apply -auto-approve tfplan
+
+    - name: Output Infrastructure Values
+      working-directory: infra/environments/${{ github.event.inputs.environment || 'dev' }}
+      run: |
+        terraform output -json > terraform-outputs.json
+      continue-on-error: true
+
+    - name: Store outputs as environment variables
+      if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+      working-directory: infra/environments/${{ github.event.inputs.environment || 'dev' }}
+      run: |
+        echo "DATABASE_CONNECTION_STRING=$(terraform output -raw database_connection_string)" >> $GITHUB_ENV
+        echo "COGNITO_USER_POOL_ID=$(terraform output -raw cognito_user_pool_id)" >> $GITHUB_ENV
+        echo "COGNITO_CLIENT_ID=$(terraform output -raw cognito_client_id)" >> $GITHUB_ENV
+        echo "COGNITO_DOMAIN=$(terraform output -raw cognito_domain)" >> $GITHUB_ENV
+        echo "COGNITO_AUTHORITY=$(terraform output -raw cognito_authority)" >> $GITHUB_ENV
+        echo "FLY_APP_NAME=$(terraform output -raw fly_app_name)" >> $GITHUB_ENV
+        echo "FLY_APP_URL=$(terraform output -raw fly_app_url)" >> $GITHUB_ENV
+        echo "GITHUB_PAGES_URL=$(terraform output -raw github_pages_url)" >> $GITHUB_ENV
+

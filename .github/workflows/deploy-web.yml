@@ -40,43 +40,13 @@ jobs:
     - name: Prepare for GitHub Pages
       run: |
         DEPLOY_DIR="publish/wwwroot"
-        REPO_NAME="${{ github.event.repository.name }}"
-        BASE_HREF="/${REPO_NAME}/"
         
-        echo "Repository name: ${REPO_NAME}"
-        echo "Setting base href to: ${BASE_HREF}"
-        
-        # Show current base href
-        echo "Current base href:"
+        # Verify base href was set correctly by Blazor (via StaticWebAssetBasePath)
+        echo "Verifying base href:"
         grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "base href not found"
         
-        # Update base href - try multiple patterns to be sure
-        sed -i "s|<base href=\"/\" />|<base href=\"${BASE_HREF}\" />|g" "${DEPLOY_DIR}/index.html"
-        sed -i "s|<base href=\"/\">|<base href=\"${BASE_HREF}\">|g" "${DEPLOY_DIR}/index.html"
-        
-        # Verify it was updated
-        echo "Updated base href:"
-        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "ERROR: base href not found after update"
-        
-        # Add redirect script to index.html for SPA routing (before closing body tag)
-        REDIRECT_SCRIPT='<script>(function(){var redirect=sessionStorage.redirect;delete sessionStorage.redirect;if(redirect&&redirect!=location.href){history.replaceState(null,null,redirect);}})();</script>'
-        sed -i "s|</body>|${REDIRECT_SCRIPT}</body>|" "${DEPLOY_DIR}/index.html"
-        
-        # Create 404.html with redirect script
-        echo '<!DOCTYPE html>' > "${DEPLOY_DIR}/404.html"
-        echo '<html>' >> "${DEPLOY_DIR}/404.html"
-        echo '<head>' >> "${DEPLOY_DIR}/404.html"
-        echo '    <meta charset="utf-8" />' >> "${DEPLOY_DIR}/404.html"
-        echo '    <title>Redirecting...</title>' >> "${DEPLOY_DIR}/404.html"
-        echo '    <script>' >> "${DEPLOY_DIR}/404.html"
-        echo '        var path = window.location.pathname;' >> "${DEPLOY_DIR}/404.html"
-        echo '        var repoName = path.split("/")[1] || "tournament-app";' >> "${DEPLOY_DIR}/404.html"
-        echo '        sessionStorage.redirect = path;' >> "${DEPLOY_DIR}/404.html"
-        echo '        window.location.replace("/" + repoName + "/index.html");' >> "${DEPLOY_DIR}/404.html"
-        echo '    </script>' >> "${DEPLOY_DIR}/404.html"
-        echo '</head>' >> "${DEPLOY_DIR}/404.html"
-        echo '<body></body>' >> "${DEPLOY_DIR}/404.html"
-        echo '</html>' >> "${DEPLOY_DIR}/404.html"
+        # Create 404.html for SPA routing (just copy index.html)
+        cp "${DEPLOY_DIR}/index.html" "${DEPLOY_DIR}/404.html"
         
         # Create .nojekyll file
         touch "${DEPLOY_DIR}/.nojekyll"

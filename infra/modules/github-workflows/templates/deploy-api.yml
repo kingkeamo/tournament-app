@@ -1,0 +1,74 @@
+name: Deploy API
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/TournamentApp.Api/**'
+      - 'src/TournamentApp.Application/**'
+      - 'src/TournamentApp.Domain/**'
+      - 'src/TournamentApp.Infrastructure/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Setup Fly.io
+      uses: superfly/flyctl-actions/setup-flyctl@master
+
+    - name: Build Docker image
+      run: |
+        docker build -t tournament-app-api:${{ github.sha }} -f src/TournamentApp.Api/Dockerfile .
+
+    - name: Login to Fly.io
+      run: flyctl auth login --api-token ${{ secrets.FLY_API_TOKEN }}
+
+    - name: Deploy to Fly.io
+      run: |
+        flyctl deploy \
+          --app ${{ secrets.FLY_APP_NAME }} \
+          --image tournament-app-api:${{ github.sha }} \
+          --remote-only
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    - name: Set Fly.io secrets
+      if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+      run: |
+        flyctl secrets set \
+          DATABASE_CONNECTION_STRING="${{ secrets.DATABASE_CONNECTION_STRING }}" \
+          COGNITO_USER_POOL_ID="${{ secrets.COGNITO_USER_POOL_ID }}" \
+          COGNITO_AUTHORITY="${{ secrets.COGNITO_AUTHORITY }}" \
+          --app ${{ secrets.FLY_APP_NAME }}
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    - name: Health check
+      run: |
+        sleep 30
+        curl -f ${{ secrets.FLY_APP_URL }}/health || exit 1
+
+    - name: Database check
+      run: |
+        curl -f ${{ secrets.FLY_APP_URL }}/db-check || exit 1
+

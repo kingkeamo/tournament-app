@@ -1,0 +1,72 @@
+@page "/players"
+@using MudBlazor
+@using TournamentApp.Application.DTOs
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+
+<PageTitle>Players</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Players</MudText>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="ShowCreateDialog">
+    Add Player
+</MudButton>
+
+@if (_players == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-3" />
+}
+else if (_players.Count == 0)
+{
+    <MudText Class="mt-4">No players found. Add players to get started!</MudText>
+}
+else
+{
+    <MudTable Items="@_players" Hover="true" Striped="true" Dense="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Created</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Created">@context.CreatedAt.ToString("g")</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<PlayerDto>? _players;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPlayers();
+    }
+
+    private async Task LoadPlayers()
+    {
+        try
+        {
+            var response = await Http.GetAsync("api/players");
+            if (response.IsSuccessStatusCode)
+            {
+                _players = await response.Content.ReadFromJsonAsync<List<PlayerDto>>();
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Snackbar.Add($"Error loading players: {response.StatusCode} - {errorContent}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading players: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void ShowCreateDialog()
+    {
+        // TODO: Implement create player dialog
+        Snackbar.Add("Create player dialog - to be implemented", Severity.Info);
+    }
+}
+

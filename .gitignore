@@ -404,6 +404,10 @@ FodyWeavers.xsd
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
+# JetBrains Rider/IntelliJ IDEA
+.idea/
+*.iml
+
 # Local History for Visual Studio Code
 .history/
 
@@ -416,3 +420,19 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+!**/environments/*/main.tfvars
+**/secrets.tfvars
+**/*.secrets.tfvars
+
+# User secrets (stored in user profile, but exclude appsettings.Development.json if created)
+appsettings.Development.json
+
+# Fly.io
+.fly/

@@ -1,0 +1,35 @@
+﻿@page "/"
+@using MudBlazor
+
+<PageTitle>Home - Tournament App</PageTitle>
+
+<MudText Typo="Typo.h3" Class="mb-4">Welcome to Tournament App</MudText>
+
+<MudText Typo="Typo.body1" Class="mb-4">
+    Manage your pool tournaments with ease. Create tournaments, add players, and generate brackets automatically.
+</MudText>
+
+<MudGrid>
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Tournaments</MudText>
+                <MudText Typo="Typo.body2">Create and manage tournaments</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Href="/tournaments">View Tournaments</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="2">
+            <MudCardContent>
+                <MudText Typo="Typo.h6">Players</MudText>
+                <MudText Typo="Typo.body2">Manage your player roster</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" Href="/players">View Players</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+</MudGrid>

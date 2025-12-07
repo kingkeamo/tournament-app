@@ -1,0 +1,50 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build API
+      run: dotnet build src/TournamentApp.Api/TournamentApp.Api.csproj --no-restore
+
+    - name: Build Web
+      run: dotnet build src/TournamentApp.Web/TournamentApp.Web.csproj --no-restore
+
+    - name: Run unit tests
+      run: dotnet test tests/TournamentApp.UnitTests/TournamentApp.UnitTests.csproj --no-build --verbosity normal
+
+    - name: Run API tests
+      run: dotnet test tests/TournamentApp.ApiTests/TournamentApp.ApiTests.csproj --no-build --verbosity normal
+
+    - name: Run integration tests
+      run: dotnet test tests/TournamentApp.IntegrationTests/TournamentApp.IntegrationTests.csproj --no-build --verbosity normal
+      env:
+        DATABASE_CONNECTION_STRING: ${{ secrets.DATABASE_CONNECTION_STRING }}
+
+    - name: Validate Terraform
+      uses: hashicorp/terraform-github-actions@v1.0.0
+      with:
+        tf_actions_version: 1.6.0
+        tf_actions_subcommand: 'validate'
+        tf_actions_working_dir: 'infra'
+      env:
+        TF_ACTIONS_WORKING_DIR: infra
+

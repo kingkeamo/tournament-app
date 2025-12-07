@@ -93,7 +93,19 @@ jobs:
         REPO_NAME="${{ github.event.repository.name }}"
         BASE_HREF="/${REPO_NAME}/"
         echo "Setting base href to: ${BASE_HREF}"
+        # Show what we're looking for
+        echo "Current base href in index.html:"
+        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "base href not found"
+        # Replace base href using sed with alternative delimiter to avoid forward slash issues
         sed -i "s|<base href=\"/\" />|<base href=\"${BASE_HREF}\" />|g" "${DEPLOY_DIR}/index.html"
+        # Also handle case where there might be no space before />
+        sed -i "s|<base href=\"/\"/>|<base href=\"${BASE_HREF}\"/>|g" "${DEPLOY_DIR}/index.html"
+        # Verify the change was applied
+        echo "Updated base href in index.html:"
+        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "WARNING: base href not found in index.html"
+        # Double-check by showing the actual line
+        echo "Actual base href line:"
+        grep -i "base href" "${DEPLOY_DIR}/index.html" | head -1
         
         # Create 404.html for SPA routing
         cp "${DEPLOY_DIR}/index.html" "${DEPLOY_DIR}/404.html"
@@ -138,32 +150,6 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./publish/wwwroot
-        destination_dir: /
-        cname: false
-        keep_files: false
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        full_commit_message: 'Deploy Blazor WebAssembly app to GitHub Pages'
-
-    - name: List files before deployment
-      run: |
-        echo "Files in deploy directory (${DEPLOY_DIR}):"
-        find "${DEPLOY_DIR}" -type f | head -50
-        echo ""
-        echo "Directory structure:"
-        tree "${DEPLOY_DIR}" -L 3 || find "${DEPLOY_DIR}" -type d | head -20
-        echo ""
-        echo "File count by type:"
-        find "${DEPLOY_DIR}" -type f | wc -l
-        echo "Directory count:"
-        find "${DEPLOY_DIR}" -type d | wc -l
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./publish/wwwroot
-        destination_dir: /
         cname: false
         keep_files: false
         user_name: 'github-actions[bot]'

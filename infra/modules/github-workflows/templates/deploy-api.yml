@@ -45,8 +45,9 @@ jobs:
         flyctl deploy \
           --app ${{ secrets.FLY_APP_NAME }} \
           --image tournament-app-api:${{ github.sha }} \
-          --remote-only \
-          --access-token ${{ secrets.FLY_API_TOKEN }}
+          --remote-only
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
     - name: Set Fly.io secrets
       if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
@@ -55,8 +56,9 @@ jobs:
           DATABASE_CONNECTION_STRING="${{ secrets.DATABASE_CONNECTION_STRING }}" \
           COGNITO_USER_POOL_ID="${{ secrets.COGNITO_USER_POOL_ID }}" \
           COGNITO_AUTHORITY="${{ secrets.COGNITO_AUTHORITY }}" \
-          --app ${{ secrets.FLY_APP_NAME }} \
-          --access-token ${{ secrets.FLY_API_TOKEN }}
+          --app ${{ secrets.FLY_APP_NAME }}
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
     - name: Health check
       run: |

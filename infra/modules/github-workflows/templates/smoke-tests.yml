@@ -19,12 +19,13 @@ jobs:
 
     - name: Test static site
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.WEB_APP_URL }})
+        WEB_URL="${{ secrets.WEB_APP_URL }}"
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
         if [ "$STATUS" -ne 200 ]; then
-          echo "Static site returned status $STATUS"
+          echo "Static site returned status $STATUS for URL: $WEB_URL"
           exit 1
         fi
-        echo "Static site is accessible"
+        echo "Static site is accessible at: $WEB_URL"
 
     - name: Test API health endpoint
       run: |

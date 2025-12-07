@@ -45,8 +45,15 @@ jobs:
       run: |
         echo "Publish directory contents:"
         ls -la publish/
+        echo ""
         echo "Looking for index.html:"
         find publish -name "index.html" -type f
+        echo ""
+        echo "Checking for _framework folder:"
+        ls -la publish/_framework/ 2>/dev/null || echo "_framework folder not found"
+        echo ""
+        echo "Top-level files in publish:"
+        ls -1 publish/ | head -20
 
     - name: Create 404.html for SPA routing
       run: |
@@ -65,14 +72,12 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./publish
         cname: false
+        keep_files: false
 
     - name: Validate homepage
       run: |
         sleep 15
         WEB_URL="${{ secrets.WEB_APP_URL }}"
-        if [ -z "$WEB_URL" ]; then
-          WEB_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
-        fi
         echo "Validating URL: $WEB_URL"
         STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
         echo "HTTP Status: $STATUS"

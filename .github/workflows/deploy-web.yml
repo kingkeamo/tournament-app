@@ -55,12 +55,16 @@ jobs:
         echo "Top-level files in publish:"
         ls -1 publish/ | head -20
 
-    - name: Create 404.html for SPA routing
+    - name: Prepare deployment files
       run: |
-        if [ -f "publish/index.html" ]; then
-          cp publish/index.html publish/404.html
-        elif [ -f "publish/wwwroot/index.html" ]; then
+        # Blazor WASM publishes to wwwroot subfolder, so we need to deploy from there
+        if [ -d "publish/wwwroot" ]; then
+          echo "Found wwwroot folder, using it for deployment"
+          # Create 404.html for SPA routing
           cp publish/wwwroot/index.html publish/wwwroot/404.html
+        elif [ -f "publish/index.html" ]; then
+          echo "Found index.html at root, using root for deployment"
+          cp publish/index.html publish/404.html
         else
           echo "Error: index.html not found in expected locations"
           exit 1
@@ -70,7 +74,7 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./publish
+        publish_dir: ./publish/wwwroot
         cname: false
         keep_files: false
 

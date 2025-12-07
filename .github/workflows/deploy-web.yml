@@ -39,7 +39,7 @@ jobs:
     - name: Build Blazor WASM
       run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish/wwwroot
       env:
-        API_BASE_URL: ${{ secrets.API_BASE_URL || "API_BASE_URL_PLACEHOLDER" }}
+        API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://tournament-app-dev.fly.dev' }}
 
     - name: Create 404.html for SPA routing
       run: |

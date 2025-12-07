@@ -19,7 +19,7 @@ jobs:
 
     - name: Test static site
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.GITHUB_PAGES_URL || "GITHUB_PAGES_URL_PLACEHOLDER" }})
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)
         if [ "$STATUS" -ne 200 ]; then
           echo "Static site returned status $STATUS"
           exit 1
@@ -28,7 +28,7 @@ jobs:
 
     - name: Test API health endpoint
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL || "FLY_APP_URL_PLACEHOLDER" }}/health)
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL }}/health)
         if [ "$STATUS" -ne 200 ]; then
           echo "API health endpoint returned status $STATUS"
           exit 1
@@ -37,7 +37,7 @@ jobs:
 
     - name: Test API database check
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL || "FLY_APP_URL_PLACEHOLDER" }}/db-check)
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL }}/db-check)
         if [ "$STATUS" -ne 200 ]; then
           echo "API database check returned status $STATUS"
           exit 1
@@ -46,10 +46,11 @@ jobs:
 
     - name: Validate Cognito OpenID configuration
       run: |
-        COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN || "COGNITO_DOMAIN_PLACEHOLDER" }}
+        COGNITO_DOMAIN=${{ secrets.COGNITO_DOMAIN }}
         OPENID_CONFIG=$(curl -s https://${COGNITO_DOMAIN}/.well-known/openid-configuration)
         if [ -z "$OPENID_CONFIG" ] || echo "$OPENID_CONFIG" | grep -q "error"; then
           echo "Cognito OpenID configuration is not accessible"
           exit 1
         fi
         echo "Cognito OpenID configuration is valid"
+

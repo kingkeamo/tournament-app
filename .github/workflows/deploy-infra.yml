@@ -1,20 +1,23 @@
 name: Deploy Infrastructure
 
+# DISABLED: Uncomment the 'on:' section below to enable this workflow
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       environment:
+#         description: 'Environment to deploy'
+#         required: true
+#         type: choice
+#         options:
+#           - dev
+#           - prod
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'infra/**'
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy'
-        required: true
-        type: choice
-        options:
-          - dev
-          - prod
-  push:
-    branches:
-      - main
-    paths:
-      - 'infra/**'
+  workflow_dispatch: {}  # Only manual trigger, no automatic triggers
 
 env:
   AWS_REGION: eu-west-2

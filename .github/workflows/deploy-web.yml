@@ -37,19 +37,33 @@ jobs:
       run: dotnet restore src/TournamentApp.Web/TournamentApp.Web.csproj
 
     - name: Build Blazor WASM
-      run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish/wwwroot
+      run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish
       env:
         API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
+    - name: Verify publish output
+      run: |
+        echo "Publish directory contents:"
+        ls -la publish/
+        echo "Looking for index.html:"
+        find publish -name "index.html" -type f
+
     - name: Create 404.html for SPA routing
       run: |
-        cp publish/wwwroot/index.html publish/wwwroot/404.html
+        if [ -f "publish/index.html" ]; then
+          cp publish/index.html publish/404.html
+        elif [ -f "publish/wwwroot/index.html" ]; then
+          cp publish/wwwroot/index.html publish/wwwroot/404.html
+        else
+          echo "Error: index.html not found in expected locations"
+          exit 1
+        fi
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./publish/wwwroot
+        publish_dir: ./publish
         cname: false
 
     - name: Validate homepage

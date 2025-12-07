@@ -1,0 +1,59 @@
+name: Deploy Web
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/TournamentApp.Web/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore src/TournamentApp.Web/TournamentApp.Web.csproj
+
+    - name: Build Blazor WASM
+      run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish/wwwroot
+      env:
+        API_BASE_URL: ${{ secrets.API_BASE_URL || "https://tournament-app-dev.fly.dev" }}
+
+    - name: Create 404.html for SPA routing
+      run: |
+        cp publish/wwwroot/index.html publish/wwwroot/404.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./publish/wwwroot
+        cname: false
+
+    - name: Validate homepage
+      run: |
+        sleep 10
+        curl -f https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ || exit 1
+

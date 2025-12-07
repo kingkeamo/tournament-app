@@ -4,13 +4,18 @@ using MudBlazor.Services;
 using TournamentApp.Web;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+// Explicitly load environment-specific appsettings files
+// Note: Blazor WebAssembly loads these from wwwroot via HTTP at runtime
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+builder.Configuration.AddJsonFile($"appsettings.{builder.HostEnvironment.Environment}.json", optional: true, reloadOnChange: false);
+
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Configure API base URL from appsettings.json
 // Note: Blazor WebAssembly runs in the browser, so user secrets are not available.
 // Configuration must come from appsettings.json (which must be in wwwroot folder)
-// The CreateDefault method automatically loads appsettings.json from wwwroot via HTTP
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
 // Validate that API URL is configured

@@ -33,6 +33,9 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Set ASP.NET environment
+      run: echo "ASPNETCORE_ENVIRONMENT=Production" >> $GITHUB_ENV
+
     - name: Build and publish
       run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish
 
@@ -60,6 +63,8 @@ jobs:
         echo "---- Base href check ----"
         grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "WARNING: base href not found"
 
+        # Replace placeholders in appsettings.json will be done in separate steps below
+
         # SPA routing fix
         cp "${DEPLOY_DIR}/index.html" "${DEPLOY_DIR}/404.html"
         
@@ -68,6 +73,39 @@ jobs:
 
         # Avoid jekyll ignoring folders starting with _
         touch "${DEPLOY_DIR}/.nojekyll"
+
+    - name: Set API base URL (dev)
+      if: github.event.inputs.environment == 'dev' || (github.event.inputs.environment == '' && github.ref != 'refs/heads/main')
+      run: |
+        DEPLOY_DIR="${{ steps.prepare.outputs.deploy_dir }}"
+        if [ -f "${DEPLOY_DIR}/appsettings.json" ]; then
+          sed -i "s|%API_BASE_URL%|https://tournament-app-dev.fly.dev|g" "${DEPLOY_DIR}/appsettings.json"
+        fi
+
+    - name: Set API base URL (prod)
+      if: github.event.inputs.environment == 'prod' || (github.event.inputs.environment == '' && github.ref == 'refs/heads/main')
+      run: |
+        DEPLOY_DIR="${{ steps.prepare.outputs.deploy_dir }}"
+        if [ -f "${DEPLOY_DIR}/appsettings.json" ]; then
+          sed -i "s|%API_BASE_URL%|https://tournament-app.fly.dev|g" "${DEPLOY_DIR}/appsettings.json"
+        fi
+
+    - name: Replace Cognito placeholders
+      run: |
+        DEPLOY_DIR="${{ steps.prepare.outputs.deploy_dir }}"
+        if [ -f "${DEPLOY_DIR}/appsettings.json" ]; then
+          sed -i "s|%COGNITO_CLIENT_ID%|${{ vars.COGNITO_CLIENT_ID }}|g" "${DEPLOY_DIR}/appsettings.json"
+          sed -i "s|%COGNITO_AUTHORITY%|${{ vars.COGNITO_AUTHORITY }}|g" "${DEPLOY_DIR}/appsettings.json"
+          sed -i "s|%COGNITO_REDIRECT_URI%|${{ vars.COGNITO_REDIRECT_URI }}|g" "${DEPLOY_DIR}/appsettings.json"
+          sed -i "s|%COGNITO_DOMAIN%|${{ vars.COGNITO_DOMAIN }}|g" "${DEPLOY_DIR}/appsettings.json"
+        fi
+
+    - name: Replace GitHub Pages base path
+      run: |
+        DEPLOY_DIR="${{ steps.prepare.outputs.deploy_dir }}"
+        if [ -f "${DEPLOY_DIR}/appsettings.json" ]; then
+          sed -i "s|%BASE_PATH%|/tournament-app|g" "${DEPLOY_DIR}/appsettings.json"
+        fi
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3

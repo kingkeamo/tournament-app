@@ -12,13 +12,15 @@ on:
           - prod
   push:
     branches:
-      - main
+      - main      # Deploys to dev
+      - production # Deploys to prod (if you create this branch)
     paths:
       - 'src/TournamentApp.Web/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/production' && 'prod' || 'dev') }}
     permissions:
       contents: write
 
@@ -81,7 +83,16 @@ jobs:
     - name: Validate homepage
       run: |
         sleep 15
-        WEB_URL="${{ secrets.WEB_APP_URL }}"
+        # Try environment variable first, then secret
+        WEB_URL="${{ vars.WEB_APP_URL }}"
+        if [ -z "$WEB_URL" ]; then
+          WEB_URL="${{ secrets.WEB_APP_URL }}"
+        fi
+        if [ -z "$WEB_URL" ]; then
+          echo "Error: WEB_APP_URL is not set or is empty"
+          echo "Please set WEB_APP_URL as an environment variable or secret in the dev environment"
+          exit 1
+        fi
         echo "Validating URL: $WEB_URL"
         STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
         echo "HTTP Status: $STATUS"

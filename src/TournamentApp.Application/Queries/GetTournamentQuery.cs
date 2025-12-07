@@ -1,5 +1,5 @@
 using MediatR;
-using TournamentApp.Application.DTOs;
+using TournamentApp.Shared;
 
 namespace TournamentApp.Application.Queries;
 

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TournamentApp.Application\TournamentApp.Application.csproj" />
+    <ProjectReference Include="..\TournamentApp.Shared\TournamentApp.Shared.csproj" />
   </ItemGroup>
 
 </Project>

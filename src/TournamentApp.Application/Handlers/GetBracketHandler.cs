@@ -1,7 +1,7 @@
 using MediatR;
-using TournamentApp.Application.DTOs;
 using TournamentApp.Application.Interfaces;
 using TournamentApp.Application.Queries;
+using TournamentApp.Shared;
 
 namespace TournamentApp.Application.Handlers;
 

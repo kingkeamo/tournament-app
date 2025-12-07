@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TournamentApp.Domain\TournamentApp.Domain.csproj" />
+    <ProjectReference Include="..\TournamentApp.Shared\TournamentApp.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

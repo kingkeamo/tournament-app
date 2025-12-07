@@ -2,8 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TournamentApp.Application.Commands;
-using TournamentApp.Application.DTOs;
 using TournamentApp.Application.Queries;
+using TournamentApp.Shared;
 
 namespace TournamentApp.Api.Controllers;
 

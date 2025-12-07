@@ -39,24 +39,32 @@ jobs:
     - name: Prepare for GitHub Pages
       id: prepare
       run: |
-        # Determine deploy directory
-        if [ -d "publish/wwwroot" ]; then
+        # Determine deploy directory (StaticWebAssetBasePath puts files in tournament-app subdirectory)
+        if [ -d "publish/wwwroot/tournament-app" ]; then
+          DEPLOY_DIR="publish/wwwroot/tournament-app"
+        elif [ -d "publish/wwwroot" ]; then
           DEPLOY_DIR="publish/wwwroot"
         elif [ -f "publish/index.html" ]; then
           DEPLOY_DIR="publish"
         else
-          echo "❌ Error: index.html not found in expected location"
+          echo "Error: index.html not found in expected location"
           exit 1
         fi
 
         echo "Using deploy directory: ${DEPLOY_DIR}"
         echo "deploy_dir=${DEPLOY_DIR}" >> $GITHUB_OUTPUT
 
+        # Set base href for GitHub Pages (replace placeholder)
+        sed -i 's|%BASE_HREF%|/tournament-app/|g' "${DEPLOY_DIR}/index.html"
+        
         echo "---- Base href check ----"
-        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "⚠️ base href not found (Blazor may not have StaticWebAssetBasePath applied)"
+        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "WARNING: base href not found"
 
         # SPA routing fix
         cp "${DEPLOY_DIR}/index.html" "${DEPLOY_DIR}/404.html"
+        
+        # Also update base href in 404.html
+        sed -i 's|%BASE_HREF%|/tournament-app/|g' "${DEPLOY_DIR}/404.html"
 
         # Avoid jekyll ignoring folders starting with _
         touch "${DEPLOY_DIR}/.nojekyll"

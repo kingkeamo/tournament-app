@@ -64,9 +64,13 @@ jobs:
           echo "Found wwwroot folder, using it for deployment"
           # Create 404.html for SPA routing
           cp publish/wwwroot/index.html publish/wwwroot/404.html
+          # Create .nojekyll to disable Jekyll processing (required for Blazor WASM)
+          touch publish/wwwroot/.nojekyll
         elif [ -f "publish/index.html" ]; then
           echo "Found index.html at root, using root for deployment"
           cp publish/index.html publish/404.html
+          # Create .nojekyll to disable Jekyll processing (required for Blazor WASM)
+          touch publish/.nojekyll
         else
           echo "Error: index.html not found in expected locations"
           exit 1
@@ -77,8 +81,16 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./publish/wwwroot
+        destination_dir: /
         cname: false
         keep_files: false
+
+    - name: Verify deployment
+      run: |
+        echo "Waiting for GitHub Pages to update..."
+        sleep 5
+        echo "Check the gh-pages branch to verify files were deployed:"
+        echo "https://github.com/${{ github.repository }}/tree/gh-pages"
 
     - name: Validate homepage
       run: |

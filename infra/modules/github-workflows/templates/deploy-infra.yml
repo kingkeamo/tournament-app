@@ -81,5 +81,5 @@ jobs:
         echo "COGNITO_AUTHORITY=$(terraform output -raw cognito_authority)" >> $GITHUB_ENV
         echo "FLY_APP_NAME=$(terraform output -raw fly_app_name)" >> $GITHUB_ENV
         echo "FLY_APP_URL=$(terraform output -raw fly_app_url)" >> $GITHUB_ENV
-        echo "GITHUB_PAGES_URL=$(terraform output -raw github_pages_url)" >> $GITHUB_ENV
+        echo "WEB_APP_URL=$(terraform output -raw github_pages_url)" >> $GITHUB_ENV
 

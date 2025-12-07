@@ -58,12 +58,12 @@ resource "github_repository_file" "deploy_api" {
   depends_on = [github_repository_file.github_dir_placeholder]
 }
 
-# Deploy Web workflow (uses secrets with fallback)
+# Deploy Web workflow (uses secrets directly - no fallbacks)
 resource "github_repository_file" "deploy_web" {
   repository          = data.github_repository.main.name
   branch              = "main"
   file                = ".github/workflows/deploy-web.yml"
-  content             = replace(file("${path.module}/templates/deploy-web.yml"), "API_BASE_URL_PLACEHOLDER", var.fly_app_url)
+  content             = file("${path.module}/templates/deploy-web.yml")
   commit_message      = "Update deploy-web workflow via Terraform"
   commit_author       = "Terraform"
   commit_email        = "terraform@example.com"
@@ -72,18 +72,12 @@ resource "github_repository_file" "deploy_web" {
   depends_on = [github_repository_file.github_dir_placeholder]
 }
 
-# Smoke Tests workflow (uses secrets with fallback)
+# Smoke Tests workflow (uses secrets directly - no fallbacks)
 resource "github_repository_file" "smoke_tests" {
   repository          = data.github_repository.main.name
   branch              = "main"
   file                = ".github/workflows/smoke-tests.yml"
-  content             = replace(
-    replace(
-      replace(file("${path.module}/templates/smoke-tests.yml"), "FLY_APP_URL_PLACEHOLDER", var.fly_app_url),
-      "COGNITO_DOMAIN_PLACEHOLDER", var.cognito_domain
-    ),
-    "GITHUB_PAGES_URL_PLACEHOLDER", var.github_pages_url
-  )
+  content             = file("${path.module}/templates/smoke-tests.yml")
   commit_message      = "Update smoke-tests workflow via Terraform"
   commit_author       = "Terraform"
   commit_email        = "terraform@example.com"

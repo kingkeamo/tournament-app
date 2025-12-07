@@ -5,7 +5,8 @@ on:
     inputs:
       environment:
         description: 'Environment to deploy'
-        required: true
+        required: false
+        default: 'dev'
         type: choice
         options:
           - dev
@@ -19,7 +20,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/production' && 'prod' || 'dev') }}
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod' || 'dev') }}
     permissions:
       contents: write
 
@@ -34,25 +35,34 @@ jobs:
 
     - name: Build and publish
       run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish
-      env:
-        API_BASE_URL: ${{ secrets.API_BASE_URL }}
 
     - name: Prepare for GitHub Pages
+      id: prepare
       run: |
-        DEPLOY_DIR="publish/wwwroot"
-        
-        # Verify base href was set correctly by Blazor (via StaticWebAssetBasePath)
-        echo "Verifying base href:"
-        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "base href not found"
-        
-        # Create 404.html for SPA routing (just copy index.html)
+        # Determine deploy directory
+        if [ -d "publish/wwwroot" ]; then
+          DEPLOY_DIR="publish/wwwroot"
+        elif [ -f "publish/index.html" ]; then
+          DEPLOY_DIR="publish"
+        else
+          echo "❌ Error: index.html not found in expected location"
+          exit 1
+        fi
+
+        echo "Using deploy directory: ${DEPLOY_DIR}"
+        echo "deploy_dir=${DEPLOY_DIR}" >> $GITHUB_OUTPUT
+
+        echo "---- Base href check ----"
+        grep -i "base href" "${DEPLOY_DIR}/index.html" || echo "⚠️ base href not found (Blazor may not have StaticWebAssetBasePath applied)"
+
+        # SPA routing fix
         cp "${DEPLOY_DIR}/index.html" "${DEPLOY_DIR}/404.html"
-        
-        # Create .nojekyll file
+
+        # Avoid jekyll ignoring folders starting with _
         touch "${DEPLOY_DIR}/.nojekyll"
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./publish/wwwroot
+        publish_dir: ./${{ steps.prepare.outputs.deploy_dir }}

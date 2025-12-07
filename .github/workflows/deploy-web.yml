@@ -34,7 +34,13 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Set ASP.NET environment
-      run: echo "ASPNETCORE_ENVIRONMENT=Production" >> $GITHUB_ENV
+      run: |
+        ENV_NAME="${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod' || 'dev') }}"
+        if [ "$ENV_NAME" == "dev" ]; then
+          echo "ASPNETCORE_ENVIRONMENT=Development" >> $GITHUB_ENV
+        else
+          echo "ASPNETCORE_ENVIRONMENT=Production" >> $GITHUB_ENV
+        fi
 
     - name: Build and publish
       run: dotnet publish src/TournamentApp.Web/TournamentApp.Web.csproj -c Release -o publish

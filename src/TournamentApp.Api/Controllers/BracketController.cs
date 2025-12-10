@@ -22,8 +22,15 @@ public class BracketController : ControllerBase
     [HttpPost("generate")]
     public async Task<IActionResult> GenerateBracket(Guid tournamentId)
     {
-        await _mediator.Send(new GenerateBracketCommand { TournamentId = tournamentId });
-        return Ok();
+        try
+        {
+            await _mediator.Send(new GenerateBracketCommand { TournamentId = tournamentId });
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet]

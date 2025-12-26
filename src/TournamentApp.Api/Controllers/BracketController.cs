@@ -1,9 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TournamentApp.Application.Commands;
-using TournamentApp.Application.Queries;
-using TournamentApp.Shared;
+using TournamentApp.Application.Matches.Queries;
+using TournamentApp.Application.Tournaments.Commands;
 
 namespace TournamentApp.Api.Controllers;
 
@@ -22,26 +21,26 @@ public class BracketController : ControllerBase
     [HttpPost("generate")]
     public async Task<IActionResult> GenerateBracket(Guid tournamentId)
     {
-        try
+        var command = new GenerateBracketCommand { TournamentId = tournamentId };
+        var response = await _mediator.Send(command);
+        
+        if (response.IsFailure)
         {
-            await _mediator.Send(new GenerateBracketCommand { TournamentId = tournamentId });
-            return Ok();
+            return BadRequest(response);
         }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+
+        return Ok(response);
     }
 
     [HttpGet]
-    public async Task<ActionResult<BracketDto>> GetBracket(Guid tournamentId)
+    public async Task<IActionResult> GetBracket(Guid tournamentId)
     {
-        var bracket = await _mediator.Send(new GetBracketQuery { TournamentId = tournamentId });
-        if (bracket == null)
+        var response = await _mediator.Send(new GetBracketQuery { TournamentId = tournamentId });
+        if (response.IsFailure)
         {
-            return NotFound();
+            return BadRequest(response);
         }
-        return Ok(bracket);
+
+        return Ok(response);
     }
 }
-

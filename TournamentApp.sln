@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.Web", "src\To
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{13D2AE9B-41CD-4F62-BF31-AC878A7891AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.UnitTests", "tests\TournamentApp.UnitTests\TournamentApp.UnitTests.csproj", "{61468495-B28B-43F6-B9D0-CA0B60C92B88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.ApplicationTests", "tests\TournamentApp.ApplicationTests\TournamentApp.ApplicationTests.csproj", "{61468495-B28B-43F6-B9D0-CA0B60C92B88}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.ApiTests", "tests\TournamentApp.ApiTests\TournamentApp.ApiTests.csproj", "{F91C9429-EB48-4F32-B8F1-286887783005}"
 EndProject

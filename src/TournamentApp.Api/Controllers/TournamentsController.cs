@@ -1,9 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TournamentApp.Application.Commands;
-using TournamentApp.Application.Queries;
-using TournamentApp.Shared;
+using TournamentApp.Application.Tournaments.Commands;
+using TournamentApp.Application.Tournaments.Queries;
 
 namespace TournamentApp.Api.Controllers;
 
@@ -20,28 +19,55 @@ public class TournamentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreateTournament([FromBody] CreateTournamentCommand command)
+    public async Task<IActionResult> CreateTournament([FromBody] CreateTournamentCommand command)
     {
-        var id = await _mediator.Send(command);
-        return Ok(id);
+        var response = await _mediator.Send(command);
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TournamentDto>>> GetTournaments()
+    public async Task<IActionResult> GetTournaments()
     {
-        var tournaments = await _mediator.Send(new GetTournamentListQuery());
-        return Ok(tournaments);
+        var response = await _mediator.Send(new GetTournamentListQuery());
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TournamentDto>> GetTournament(Guid id)
+    public async Task<IActionResult> GetTournament(Guid id)
     {
-        var tournament = await _mediator.Send(new GetTournamentQuery { TournamentId = id });
-        if (tournament == null)
+        var response = await _mediator.Send(new GetTournamentQuery { TournamentId = id });
+        if (response.IsFailure)
         {
-            return NotFound();
+            return BadRequest(response);
         }
-        return Ok(tournament);
+
+        return Ok(response);
+    }
+
+    [HttpPost("{id}/players")]
+    public async Task<IActionResult> AddPlayerToTournament(Guid id, [FromBody] AddPlayerToTournamentCommand command)
+    {
+        if (id != command.TournamentId)
+        {
+            return BadRequest("Tournament ID mismatch");
+        }
+
+        var response = await _mediator.Send(command);
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
 }
-

@@ -54,3 +54,7 @@ public class AddPlayerCommandValidator : AbstractValidator<AddPlayerCommand>
 
 
 
+
+
+
+

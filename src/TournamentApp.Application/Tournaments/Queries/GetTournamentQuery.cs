@@ -63,3 +63,7 @@ public class GetTournamentQueryValidator : AbstractValidator<GetTournamentQuery>
 
 
 
+
+
+
+

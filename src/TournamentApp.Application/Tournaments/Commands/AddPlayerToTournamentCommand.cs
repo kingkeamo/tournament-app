@@ -68,3 +68,7 @@ public class AddPlayerToTournamentCommandValidator : AbstractValidator<AddPlayer
 
 
 
+
+
+
+

@@ -1,0 +1,42 @@
+@page "/players"
+@inherits AllPlayersBase
+
+<PageTitle>Players</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Players</MudText>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(async () => await ShowCreateDialog())">
+    Add Player
+</MudButton>
+
+<ValidationErrors Errors="@_validationErrors" />
+
+@if (_errorMessage != null)
+{
+    <MudAlert Severity="Severity.Error" Class="mt-4">
+        <MudText Typo="Typo.h6">Error Loading Players</MudText>
+        <MudText>@_errorMessage</MudText>
+    </MudAlert>
+}
+else if (_players == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-3" />
+}
+else if (_players.Count == 0)
+{
+    <MudText Class="mt-4">No players found. Add players to get started!</MudText>
+}
+else
+{
+    <MudTable Items="@_players" Hover="true" Striped="true" Dense="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Created</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Created">@context.CreatedAt.ToString("g")</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+

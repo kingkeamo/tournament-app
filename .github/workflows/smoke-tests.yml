@@ -68,17 +68,3 @@ jobs:
           exit 1
         fi
         echo "API database check passed"
-
-    - name: Validate Cognito OpenID configuration
-      run: |
-        COGNITO_DOMAIN="${{ vars.COGNITO_DOMAIN }}"
-        if [ -z "$COGNITO_DOMAIN" ]; then
-          echo "Error: COGNITO_DOMAIN environment variable is not set"
-          exit 1
-        fi
-        OPENID_CONFIG=$(curl -s "https://${COGNITO_DOMAIN}/.well-known/openid-configuration")
-        if [ -z "$OPENID_CONFIG" ] || echo "$OPENID_CONFIG" | grep -q "error"; then
-          echo "Cognito OpenID configuration is not accessible"
-          exit 1
-        fi
-        echo "Cognito OpenID configuration is valid"

@@ -36,6 +36,9 @@
     margin-top: 8px;
     gap: 8px;
 }
+/* tournament-app/Dialogs/ConfirmDialog.razor.rz.scp.css */
+/* ConfirmDialog styles */
+
 /* tournament-app/Dialogs/CreatePlayerDialog.razor.rz.scp.css */
 /* CreatePlayerDialog styles */
 [b-y34krqeabo] .mud-dialog {
@@ -350,7 +353,26 @@ main[b-td4a6xqdmb] {
 /* tournament-app/Pages/Tournaments/ViewTournament.razor.rz.scp.css */
 /* ViewTournament page styles */
 
+.player-list[b-7hrhe7239a] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
+.player-row[b-7hrhe7239a] {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
 
+.player-row:hover[b-7hrhe7239a] {
+    background-color: rgba(0, 0, 0, 0.04);
+}
 
+.player-name[b-7hrhe7239a] {
+    flex: 1;
+    margin: 0;
+}
 

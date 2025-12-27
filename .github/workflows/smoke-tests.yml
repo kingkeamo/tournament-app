@@ -2,6 +2,14 @@ name: Smoke Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
   schedule:
     - cron: '0 */6 * * *' # Every 6 hours
   workflow_run:
@@ -12,6 +20,7 @@ on:
 jobs:
   smoke-tests:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
 
     steps:
     - name: Checkout code
@@ -20,6 +29,10 @@ jobs:
     - name: Test static site
       run: |
         WEB_URL="${{ vars.WEB_APP_URL }}"
+        if [ -z "$WEB_URL" ]; then
+          echo "Error: WEB_APP_URL environment variable is not set. Please set it in GitHub repository/environment variables."
+          exit 1
+        fi
         STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
         if [ "$STATUS" -ne 200 ]; then
           echo "Static site returned status $STATUS for URL: $WEB_URL"
@@ -29,7 +42,12 @@ jobs:
 
     - name: Test API health endpoint
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ vars.FLY_APP_URL }}/health)
+        FLY_APP_URL="${{ vars.FLY_APP_URL }}"
+        if [ -z "$FLY_APP_URL" ]; then
+          echo "Error: FLY_APP_URL environment variable is not set"
+          exit 1
+        fi
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$FLY_APP_URL/health")
         if [ "$STATUS" -ne 200 ]; then
           echo "API health endpoint returned status $STATUS"
           exit 1
@@ -38,7 +56,12 @@ jobs:
 
     - name: Test API database check
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ vars.FLY_APP_URL }}/dbcheck)
+        FLY_APP_URL="${{ vars.FLY_APP_URL }}"
+        if [ -z "$FLY_APP_URL" ]; then
+          echo "Error: FLY_APP_URL environment variable is not set"
+          exit 1
+        fi
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$FLY_APP_URL/dbcheck")
         if [ "$STATUS" -ne 200 ]; then
           echo "API database check returned status $STATUS"
           exit 1
@@ -48,7 +71,11 @@ jobs:
     - name: Validate Cognito OpenID configuration
       run: |
         COGNITO_DOMAIN="${{ vars.COGNITO_DOMAIN }}"
-        OPENID_CONFIG=$(curl -s https://${COGNITO_DOMAIN}/.well-known/openid-configuration)
+        if [ -z "$COGNITO_DOMAIN" ]; then
+          echo "Error: COGNITO_DOMAIN environment variable is not set"
+          exit 1
+        fi
+        OPENID_CONFIG=$(curl -s "https://${COGNITO_DOMAIN}/.well-known/openid-configuration")
         if [ -z "$OPENID_CONFIG" ] || echo "$OPENID_CONFIG" | grep -q "error"; then
           echo "Cognito OpenID configuration is not accessible"
           exit 1

@@ -1,6 +1,7 @@
 @using MudBlazor
 @using TournamentApp.Shared
 @using TournamentApp.Web.Dialogs
+@using TournamentApp.Web.Contracts.Services
 
 <MudCard Elevation="2" Class="mb-3">
     <MudCardContent>
@@ -51,6 +52,35 @@
     [Parameter] public MatchDto Match { get; set; } = null!;
     [Parameter] public EventCallback OnScoreUpdate { get; set; }
     [Inject] protected IDialogService DialogService { get; set; } = null!;
+    [Inject] protected IPlayerService PlayerService { get; set; } = null!;
+
+    private Dictionary<Guid, string> _playerNames = new();
+    private bool _playersLoaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPlayers();
+    }
+
+    private async Task LoadPlayers()
+    {
+        if (_playersLoaded) return;
+
+        try
+        {
+            var response = await PlayerService.GetPlayers();
+            if (response.IsSuccess && response.Data != null)
+            {
+                _playerNames = response.Data.ToDictionary(p => p.Id, p => p.Name);
+                _playersLoaded = true;
+                StateHasChanged();
+            }
+        }
+        catch
+        {
+            // Ignore errors, will show UUID as fallback
+        }
+    }
 
     private MudBlazor.Color GetStatusColor(string status)
     {
@@ -65,7 +95,10 @@
 
     private string GetPlayerName(Guid playerId)
     {
-        // TODO: Load player names from service
+        if (_playerNames.TryGetValue(playerId, out var name))
+        {
+            return name;
+        }
         return $"Player {playerId}";
     }
 

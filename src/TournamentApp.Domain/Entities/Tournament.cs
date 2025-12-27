@@ -12,6 +12,7 @@ public class Tournament
 public enum TournamentStatus
 {
     Draft,
+    Pending,
     InProgress,
     Completed
 }

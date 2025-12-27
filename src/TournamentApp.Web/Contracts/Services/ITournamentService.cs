@@ -9,6 +9,7 @@ public interface ITournamentService
     Task<DataResponse<TournamentDto>> GetTournament(Guid tournamentId);
     Task<CreateResponse> CreateTournament(CreateTournamentViewModel viewModel);
     Task<Response> AddPlayerToTournament(Guid tournamentId, AddPlayerToTournamentViewModel viewModel);
+    Task<Response> RemovePlayerFromTournament(Guid tournamentId, Guid playerId);
 }
 
 public class CreateTournamentViewModel
@@ -22,8 +23,9 @@ public class AddPlayerToTournamentViewModel
 {
     public Guid TournamentId { get; set; }
     
-    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Please select a player")]
-    public Guid PlayerId { get; set; }
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Please select at least one player")]
+    [System.ComponentModel.DataAnnotations.MinLength(1, ErrorMessage = "Please select at least one player")]
+    public List<Guid> PlayerIds { get; set; } = new();
 }
 
 

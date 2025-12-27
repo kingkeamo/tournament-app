@@ -91,6 +91,25 @@ public class ViewBracketBase : ComponentBase
         await LoadBracket();
         StateHasChanged();
     }
+
+    protected string GetRoundName(int roundNumber)
+    {
+        if (_bracket == null || _bracket.MatchesByRound.Count == 0)
+        {
+            return $"Round {roundNumber}";
+        }
+
+        var totalRounds = _bracket.MatchesByRound.Keys.Max();
+        var roundFromEnd = totalRounds - roundNumber + 1;
+
+        return roundFromEnd switch
+        {
+            1 => "Final",
+            2 => "Semi Finals",
+            3 => "Quarter Finals",
+            _ => $"Round {roundNumber}"
+        };
+    }
 }
 
 

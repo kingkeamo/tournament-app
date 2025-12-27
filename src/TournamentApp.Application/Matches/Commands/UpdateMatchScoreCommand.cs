@@ -75,11 +75,21 @@ public class UpdateMatchScoreHandler : IRequestHandler<UpdateMatchScoreCommand, 
         var nextRoundMatch = allMatches.FirstOrDefault(m =>
             m.TournamentId == match.TournamentId
             && m.Round == match.Round + 1
-            && m.Position == match.Position / 2);
+            && m.Position == (match.Position + 1) / 2);
 
         if (nextRoundMatch != null)
         {
             await _matchRepository.UpdateAsync(nextRoundMatch);
+        }
+        else
+        {
+            // This is the final match - tournament is now completed
+            var tournament = await _tournamentRepository.GetByIdAsync(match.TournamentId);
+            if (tournament != null)
+            {
+                tournament.Status = TournamentStatus.Completed;
+                await _tournamentRepository.UpdateStatusAsync(match.TournamentId, tournament.Status);
+            }
         }
 
         return new UpdateMatchScoreResponse();

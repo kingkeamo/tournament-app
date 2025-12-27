@@ -3,57 +3,67 @@
 
 <MudDialog>
     <TitleContent>
-        <MudText Typo="Typo.h6">Add Player to Tournament</MudText>
+        <MudText Typo="Typo.h6">Add Players to Tournament</MudText>
     </TitleContent>
     <DialogContent>
-    @if (_players == null)
-    {
-        <MudProgressCircular Indeterminate="true" />
-    }
-    else if (!_players.Any())
-    {
-        <MudAlert Severity="Severity.Warning">No players available. Please create players first.</MudAlert>
-    }
-    else
-    {
-        <EditForm EditContext="@_editContext">
-            <DataAnnotationsValidator />
-            <MudSelect @bind-Value="_viewModel.PlayerId" 
-                       Label="Select Player" 
-                       Variant="Variant.Outlined" 
-                       HelperText="Choose a player to add to this tournament"
-                       Class="mb-4">
-                @foreach (var player in _players)
+        @if (_players == null)
+        {
+            <MudProgressCircular Indeterminate="true" />
+        }
+        else if (!_players.Any())
+        {
+            <MudAlert Severity="Severity.Warning">
+                All players are already in this tournament. Please create more players first.
+            </MudAlert>
+        }
+        else
+        {
+            <EditForm EditContext="@_editContext">
+                <DataAnnotationsValidator />
+                <MudPaper Elevation="1" Class="mb-4" Style="max-height: 400px; overflow-y: auto;">
+                    <MudList T="Guid" 
+                             SelectedValues="_selectedPlayerIds"
+                             SelectedValuesChanged="@OnSelectedValuesChanged"
+                             SelectionMode="SelectionMode.MultiSelection" 
+                             CheckBoxColor="Color.Primary">
+                        @foreach (var player in _players)
+                        {
+                            <MudListItem Text="@player.Name" Value="@player.Id" />
+                        }
+                    </MudList>
+                </MudPaper>
+                <ValidationMessage For="@(() => _viewModel.PlayerIds)" />
+                @if (_selectedPlayerIds != null && _selectedPlayerIds.Any())
                 {
-                    <MudSelectItem Value="@player.Id">@player.Name</MudSelectItem>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        Selected: @_selectedPlayerIds.Count player(s)
+                    </MudText>
                 }
-            </MudSelect>
-            <ValidationMessage For="@(() => _viewModel.PlayerId)" />
-        </EditForm>
-        <DialogActions>
-            <MudButton ButtonType="ButtonType.Button" 
-                       Variant="Variant.Text" 
-                       Color="Color.Default" 
-                       OnClick="Cancel">
-                Cancel
-            </MudButton>
-            <MudButton ButtonType="ButtonType.Button" 
-                       Variant="Variant.Filled" 
-                       Color="Color.Primary" 
-                       Disabled="@_isSaving"
-                       OnClick="HandleSubmit"
-                       StartIcon="@Icons.Material.Filled.PersonAdd">
-                @if (_isSaving)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">Adding...</MudText>
-                }
-                else
-                {
-                    <MudText>Add Player</MudText>
-                }
-            </MudButton>
-        </DialogActions>
-    }
+            </EditForm>
+        }
     </DialogContent>
+    <DialogActions>
+        <MudButton ButtonType="ButtonType.Button" 
+                   Variant="Variant.Text" 
+                   Color="Color.Default" 
+                   OnClick="Cancel">
+            Cancel
+        </MudButton>
+        <MudButton ButtonType="ButtonType.Button" 
+                   Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   Disabled="@_isSaving"
+                   OnClick="HandleSubmit"
+                   StartIcon="@Icons.Material.Filled.PersonAdd">
+            @if (_isSaving)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Adding...</MudText>
+            }
+            else
+            {
+                <MudText>Add Players</MudText>
+            }
+        </MudButton>
+    </DialogActions>
 </MudDialog>

@@ -35,7 +35,7 @@ public class WhenTestingGetBracket
                 Id = Guid.NewGuid(),
                 TournamentId = tournamentId,
                 Round = 1,
-                Position = 0,
+                Position = 1,
                 Player1Id = Guid.NewGuid(),
                 Player2Id = Guid.NewGuid(),
                 Status = MatchStatus.Pending

@@ -1,0 +1,23 @@
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>@Message</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton ButtonType="ButtonType.Button" 
+                   Variant="Variant.Text" 
+                   Color="Color.Default" 
+                   OnClick="Cancel">
+            @CancelText
+        </MudButton>
+        <MudButton ButtonType="ButtonType.Button" 
+                   Variant="Variant.Filled" 
+                   Color="@ConfirmColor" 
+                   OnClick="Confirm">
+            @ConfirmText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+

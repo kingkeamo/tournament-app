@@ -17,7 +17,7 @@ public class BracketGenerator
         
         // Round 1: Create matches for all players
         var round1Matches = new List<Match>();
-        var position = 0;
+        var position = 1;
 
         for (int i = 0; i < playerIds.Count; i += 2)
         {
@@ -47,7 +47,7 @@ public class BracketGenerator
         for (int round = 2; round <= numberOfRounds; round++)
         {
             var nextRoundMatches = new List<Match>();
-            position = 0;
+            position = 1;
 
             for (int i = 0; i < currentRoundMatches.Count; i += 2)
             {
@@ -80,15 +80,15 @@ public class BracketGenerator
         var nextRoundMatch = allMatches
             .FirstOrDefault(m => m.TournamentId == match.TournamentId 
                 && m.Round == match.Round + 1 
-                && m.Position == match.Position / 2);
+                && m.Position == (match.Position + 1) / 2);
 
         if (nextRoundMatch == null)
         {
             return; // This is the final match
         }
 
-        // Determine which player slot to fill based on position
-        if (match.Position % 2 == 0)
+        // Determine which player slot to fill based on position (positions start at 1)
+        if (match.Position % 2 == 1)
         {
             nextRoundMatch.Player1Id = match.WinnerId;
         }

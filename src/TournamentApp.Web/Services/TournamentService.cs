@@ -38,6 +38,12 @@ public class TournamentService : ITournamentService
         var httpResponse = await _httpClient.PostAsJsonAsync($"api/tournaments/{tournamentId}/players", viewModel);
         return await httpResponse.GetResponseData<Response>();
     }
+
+    public async Task<Response> RemovePlayerFromTournament(Guid tournamentId, Guid playerId)
+    {
+        var httpResponse = await _httpClient.DeleteAsync($"api/tournaments/{tournamentId}/players/{playerId}");
+        return await httpResponse.GetResponseData<Response>();
+    }
 }
 
 

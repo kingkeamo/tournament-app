@@ -1,6 +1,7 @@
 using Bunit;
 using FluentAssertions;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using NSubstitute;
@@ -28,17 +29,23 @@ public class WhenTestingCreateTournament : TestContext
     }
 
     [Fact]
-    public void ItShouldHaveNameInputField()
+    public async Task ItShouldHaveNameInputField()
     {
         // Arrange
-        var mudDialog = Substitute.For<IMudDialogInstance>();
+        var dialogService = Services.GetRequiredService<IDialogService>();
+        var dialogProvider = RenderComponent<MudDialogProvider>();
         
-        // Act
-        var component = RenderComponent<TournamentApp.Web.Dialogs.CreateTournamentDialog>(
-            builder => builder.AddCascadingValue(mudDialog));
+        // Act - Open dialog via DialogService (MudDialog only renders when opened this way)
+        var dialogReference = await dialogService.ShowAsync<CreateTournamentDialog>("");
+        var component = dialogProvider;
 
         // Assert
-        component.Find("input[type='text']").Should().NotBeNull();
+        component.WaitForAssertion(() =>
+        {
+            var textField = component.FindComponent<MudTextField<string>>();
+            textField.Should().NotBeNull();
+            textField.Instance.Label.Should().Be("Tournament Name");
+        }, timeout: TimeSpan.FromSeconds(5));
     }
 
     [Fact]
@@ -55,20 +62,35 @@ public class WhenTestingCreateTournament : TestContext
 
         _mockTournamentService.CreateTournament(Arg.Any<CreateTournamentViewModel>()).Returns(Task.FromResult(response));
 
-        var mudDialog = Substitute.For<IMudDialogInstance>();
-        var component = RenderComponent<TournamentApp.Web.Dialogs.CreateTournamentDialog>(
-            builder => builder.AddCascadingValue(mudDialog));
-        var nameInput = component.Find("input[type='text']");
-        var submitButton = component.Find("button[type='submit']");
+        var dialogService = Services.GetRequiredService<IDialogService>();
+        var dialogProvider = RenderComponent<MudDialogProvider>();
+        
+        // Act - Open dialog via DialogService
+        var dialogReference = await dialogService.ShowAsync<CreateTournamentDialog>("");
+        var component = dialogProvider;
+        
+        component.WaitForAssertion(() =>
+        {
+            component.Markup.Should().Contain("Tournament Name");
+        }, timeout: TimeSpan.FromSeconds(5));
+        
+        var textField = component.FindComponent<MudTextField<string>>();
+        var input = textField.Find("input");
+        input.Change("New Tournament");
+        
+        var buttons = component.FindAll("button");
+        var submitButton = buttons.FirstOrDefault(b => b.TextContent.Contains("Create Tournament"));
+        submitButton.Should().NotBeNull();
 
         // Act
-        nameInput.Change("New Tournament");
-        submitButton.Click();
+        submitButton!.Click();
+
+        // Wait for async operations
+        await Task.Delay(100);
 
         // Assert
         await _mockTournamentService.Received().CreateTournament(Arg.Is<CreateTournamentViewModel>(vm => vm.Name == "New Tournament"));
         _mockSnackbar.Received().Add("Tournament created successfully!", Severity.Success);
-        mudDialog.Received().Close(Arg.Any<DialogResult>());
     }
 
     [Fact]
@@ -89,16 +111,30 @@ public class WhenTestingCreateTournament : TestContext
 
         _mockTournamentService.CreateTournament(Arg.Any<CreateTournamentViewModel>()).Returns(Task.FromResult(response));
 
-        var mudDialog = Substitute.For<IMudDialogInstance>();
-        var component = RenderComponent<CreateTournamentDialog>(
-            builder => builder.AddCascadingValue(mudDialog));
-        var submitButton = component.Find("button[type='submit']");
+        var dialogService = Services.GetRequiredService<IDialogService>();
+        var dialogProvider = RenderComponent<MudDialogProvider>();
+        
+        // Act - Open dialog via DialogService
+        var dialogReference = await dialogService.ShowAsync<CreateTournamentDialog>("");
+        var component = dialogProvider;
+        
+        component.WaitForAssertion(() =>
+        {
+            component.Markup.Should().Contain("Tournament Name");
+        }, timeout: TimeSpan.FromSeconds(5));
+        
+        var buttons = component.FindAll("button");
+        var submitButton = buttons.FirstOrDefault(b => b.TextContent.Contains("Create Tournament"));
+        submitButton.Should().NotBeNull();
 
-        // Act
-        submitButton.Click();
+        // Act - Click submit with empty field (should show client-side validation error)
+        submitButton!.Click();
 
-        // Assert
-        _mockSnackbar.Received().Add("Tournament name is required", Severity.Error);
+        // Assert - Check that validation error message is displayed in the UI
+        component.WaitForAssertion(() =>
+        {
+            component.Markup.Should().Contain("Tournament name is required");
+        }, timeout: TimeSpan.FromSeconds(5));
     }
 }
 

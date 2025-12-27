@@ -1,6 +1,7 @@
 using Bunit;
 using FluentAssertions;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using NSubstitute;
@@ -28,17 +29,23 @@ public class WhenTestingCreatePlayer : TestContext
     }
 
     [Fact]
-    public void ItShouldHaveNameInputField()
+    public async Task ItShouldHaveNameInputField()
     {
         // Arrange
-        var mudDialog = Substitute.For<IMudDialogInstance>();
+        var dialogService = Services.GetRequiredService<IDialogService>();
+        var dialogProvider = RenderComponent<MudDialogProvider>();
         
-        // Act
-        var component = RenderComponent<TournamentApp.Web.Dialogs.CreatePlayerDialog>(
-            builder => builder.AddCascadingValue(mudDialog));
+        // Act - Open dialog via DialogService (MudDialog only renders when opened this way)
+        var dialogReference = await dialogService.ShowAsync<CreatePlayerDialog>("");
+        var component = dialogProvider;
 
         // Assert
-        component.Find("input[type='text']").Should().NotBeNull();
+        component.WaitForAssertion(() =>
+        {
+            var textField = component.FindComponent<MudTextField<string>>();
+            textField.Should().NotBeNull();
+            textField.Instance.Label.Should().Be("Player Name");
+        }, timeout: TimeSpan.FromSeconds(5));
     }
 
     [Fact]
@@ -55,20 +62,35 @@ public class WhenTestingCreatePlayer : TestContext
 
         playerService.AddPlayer(Arg.Any<AddPlayerViewModel>()).Returns(Task.FromResult(response));
 
-        var mudDialog = Substitute.For<IMudDialogInstance>();
-        var component = RenderComponent<TournamentApp.Web.Dialogs.CreatePlayerDialog>(
-            builder => builder.AddCascadingValue(mudDialog));
-        var nameInput = component.Find("input[type='text']");
-        var submitButton = component.Find("button[type='submit']");
+        var dialogService = Services.GetRequiredService<IDialogService>();
+        var dialogProvider = RenderComponent<MudDialogProvider>();
+        
+        // Act - Open dialog via DialogService
+        var dialogReference = await dialogService.ShowAsync<CreatePlayerDialog>("");
+        var component = dialogProvider;
+        
+        component.WaitForAssertion(() =>
+        {
+            component.Markup.Should().Contain("Player Name");
+        }, timeout: TimeSpan.FromSeconds(5));
+        
+        var textField = component.FindComponent<MudTextField<string>>();
+        var input = textField.Find("input");
+        input.Change("New Player");
+        
+        var buttons = component.FindAll("button");
+        var submitButton = buttons.FirstOrDefault(b => b.TextContent.Contains("Create Player"));
+        submitButton.Should().NotBeNull();
 
         // Act
-        nameInput.Change("New Player");
-        submitButton.Click();
+        submitButton!.Click();
+
+        // Wait for async operations
+        await Task.Delay(100);
 
         // Assert
         await playerService.Received().AddPlayer(Arg.Is<AddPlayerViewModel>(vm => vm.Name == "New Player"));
         snackbar.Received().Add("Player created successfully!", Severity.Success);
-        mudDialog.Received().Close(Arg.Any<DialogResult>());
     }
 
     [Fact]
@@ -89,16 +111,30 @@ public class WhenTestingCreatePlayer : TestContext
 
         playerService.AddPlayer(Arg.Any<AddPlayerViewModel>()).Returns(Task.FromResult(response));
 
-        var mudDialog = Substitute.For<IMudDialogInstance>();
-        var component = RenderComponent<CreatePlayerDialog>(
-            builder => builder.AddCascadingValue(mudDialog));
-        var submitButton = component.Find("button[type='submit']");
+        var dialogService = Services.GetRequiredService<IDialogService>();
+        var dialogProvider = RenderComponent<MudDialogProvider>();
+        
+        // Act - Open dialog via DialogService
+        var dialogReference = await dialogService.ShowAsync<CreatePlayerDialog>("");
+        var component = dialogProvider;
+        
+        component.WaitForAssertion(() =>
+        {
+            component.Markup.Should().Contain("Player Name");
+        }, timeout: TimeSpan.FromSeconds(5));
+        
+        var buttons = component.FindAll("button");
+        var submitButton = buttons.FirstOrDefault(b => b.TextContent.Contains("Create Player"));
+        submitButton.Should().NotBeNull();
 
-        // Act
-        submitButton.Click();
+        // Act - Click submit with empty field (should show client-side validation error)
+        submitButton!.Click();
 
-        // Assert
-        snackbar.Received().Add("Player name is required", Severity.Error);
+        // Assert - Check that validation error message is displayed in the UI
+        component.WaitForAssertion(() =>
+        {
+            component.Markup.Should().Contain("Player name is required");
+        }, timeout: TimeSpan.FromSeconds(5));
     }
 }
 

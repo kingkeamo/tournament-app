@@ -26,7 +26,7 @@ else
 
     @foreach (var round in _bracket.MatchesByRound.OrderBy(r => r.Key))
     {
-        <MudText Typo="Typo.h6" Class="mt-4 mb-2">Round @round.Key</MudText>
+        <MudText Typo="Typo.h6" Class="mt-4 mb-2">@GetRoundName(round.Key)</MudText>
         <MudGrid>
             @foreach (var match in round.Value)
             {

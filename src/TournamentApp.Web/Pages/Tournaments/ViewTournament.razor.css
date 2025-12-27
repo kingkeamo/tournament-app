@@ -1,6 +1,25 @@
 /* ViewTournament page styles */
 
+.player-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
 
+.player-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
 
+.player-row:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
 
+.player-name {
+    flex: 1;
+    margin: 0;
+}
 

@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using TournamentApp.Application.Common.Responses;
 using TournamentApp.Application.Interfaces;
+using TournamentApp.Domain.Entities;
 using TournamentApp.Domain.Services;
 
 namespace TournamentApp.Application.Tournaments.Commands;
@@ -51,6 +52,9 @@ public class GenerateBracketHandler : IRequestHandler<GenerateBracketCommand, Ge
 
         var matches = _bracketGenerator.GenerateSingleEliminationBracket(request.TournamentId, playerIds);
         await _matchRepository.CreateManyAsync(matches);
+
+        tournament.Status = TournamentStatus.InProgress;
+        await _tournamentRepository.UpdateStatusAsync(request.TournamentId, tournament.Status);
 
         return new GenerateBracketResponse();
     }

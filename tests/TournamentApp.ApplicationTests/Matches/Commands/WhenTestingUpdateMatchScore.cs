@@ -35,7 +35,7 @@ public class WhenTestingUpdateMatchScore
             Id = matchId,
             TournamentId = tournamentId,
             Round = 1,
-            Position = 0,
+            Position = 1,
             Player1Id = player1Id,
             Player2Id = player2Id,
             Status = MatchStatus.Pending
@@ -103,7 +103,7 @@ public class WhenTestingUpdateMatchScore
             Id = matchId,
             TournamentId = Guid.NewGuid(),
             Round = 1,
-            Position = 0,
+            Position = 1,
             Player1Id = Guid.NewGuid(),
             Player2Id = Guid.NewGuid(),
             Status = MatchStatus.Pending
@@ -126,6 +126,59 @@ public class WhenTestingUpdateMatchScore
         response.ErrorMessage.Should().Contain("cannot be equal");
 
         await matchRepository.DidNotReceive().UpdateAsync(Arg.Any<Match>());
+    }
+
+    [Fact]
+    public async Task ItShouldSetTournamentToCompletedWhenFinalMatchIsCompleted()
+    {
+        // Arrange
+        var matchRepository = Substitute.For<IMatchRepository>();
+        var tournamentRepository = Substitute.For<ITournamentRepository>();
+        var bracketGenerator = new BracketGenerator();
+        var handler = new UpdateMatchScoreHandler(matchRepository, tournamentRepository, bracketGenerator);
+        
+        var matchId = Guid.NewGuid();
+        var tournamentId = Guid.NewGuid();
+        var player1Id = Guid.NewGuid();
+        var player2Id = Guid.NewGuid();
+        
+        var command = new UpdateMatchScoreCommand 
+        { 
+            MatchId = matchId,
+            Score1 = 10,
+            Score2 = 5
+        };
+
+        var match = new Match
+        {
+            Id = matchId,
+            TournamentId = tournamentId,
+            Round = 1,
+            Position = 1,
+            Player1Id = player1Id,
+            Player2Id = player2Id,
+            Status = MatchStatus.Pending
+        };
+
+        var tournament = new Tournament
+        {
+            Id = tournamentId,
+            Name = "Test Tournament",
+            Status = TournamentStatus.InProgress,
+            CreatedAt = DateTime.UtcNow,
+            PlayerIds = new List<Guid>()
+        };
+
+        matchRepository.GetByIdAsync(matchId).Returns(match);
+        matchRepository.GetByTournamentIdAsync(tournamentId).Returns(new List<Match> { match });
+        tournamentRepository.GetByIdAsync(tournamentId).Returns(tournament);
+
+        // Act
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        response.IsSuccess.Should().BeTrue();
+        await tournamentRepository.Received(1).UpdateStatusAsync(tournamentId, TournamentStatus.Completed);
     }
 }
 

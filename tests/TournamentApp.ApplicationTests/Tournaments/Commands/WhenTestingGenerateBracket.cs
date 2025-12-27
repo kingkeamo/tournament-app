@@ -42,6 +42,7 @@ public class WhenTestingGenerateBracket
         response.ErrorMessage.Should().BeEmpty();
 
         await matchRepository.Received(1).CreateManyAsync(Arg.Any<List<Match>>());
+        await tournamentRepository.Received(1).UpdateStatusAsync(tournamentId, TournamentStatus.InProgress);
     }
 
     [Fact]

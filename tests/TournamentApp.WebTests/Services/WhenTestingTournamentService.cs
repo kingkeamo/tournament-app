@@ -12,7 +12,7 @@ namespace TournamentApp.WebTests.Services;
 public class WhenTestingTournamentService
 {
     [Fact]
-    public async Task GetTournaments_ShouldReturnTournaments_WhenApiReturnsSuccess()
+    public async Task ItShouldReturnTournamentsWhenApiReturnsSuccess()
     {
         // Arrange
         var tournaments = new List<TournamentDto>
@@ -43,7 +43,7 @@ public class WhenTestingTournamentService
     }
 
     [Fact]
-    public async Task GetTournament_ShouldReturnTournament_WhenApiReturnsSuccess()
+    public async Task ItShouldReturnTournamentWhenApiReturnsSuccess()
     {
         // Arrange
         var tournamentId = Guid.NewGuid();
@@ -77,7 +77,7 @@ public class WhenTestingTournamentService
     }
 
     [Fact]
-    public async Task CreateTournament_ShouldReturnNewId_WhenApiReturnsSuccess()
+    public async Task ItShouldReturnNewIdWhenApiReturnsSuccess()
     {
         // Arrange
         var newId = Guid.NewGuid();
@@ -102,7 +102,7 @@ public class WhenTestingTournamentService
     }
 
     [Fact]
-    public async Task AddPlayerToTournament_ShouldReturnSuccess_WhenApiReturnsSuccess()
+    public async Task ItShouldReturnSuccessWhenAddingPlayerToTournament()
     {
         // Arrange
         var response = new Response
@@ -117,7 +117,7 @@ public class WhenTestingTournamentService
         var viewModel = new AddPlayerToTournamentViewModel
         {
             TournamentId = Guid.NewGuid(),
-            PlayerId = Guid.NewGuid()
+            PlayerIds = new List<Guid> { Guid.NewGuid() }
         };
 
         // Act
@@ -128,12 +128,12 @@ public class WhenTestingTournamentService
     }
 
     [Fact]
-    public async Task AddPlayerToTournament_ShouldReturnFailure_WhenApiReturnsValidationErrors()
+    public async Task ItShouldReturnFailureWhenApiReturnsValidationErrors()
     {
         // Arrange
         var validationErrors = new List<ValidationFailure>
         {
-            new ValidationFailure("PlayerId", "Player is already in tournament")
+            new ValidationFailure("PlayerIds", "One or more players are already in tournament")
         };
 
         var response = new Response
@@ -148,7 +148,7 @@ public class WhenTestingTournamentService
         var viewModel = new AddPlayerToTournamentViewModel
         {
             TournamentId = Guid.NewGuid(),
-            PlayerId = Guid.NewGuid()
+            PlayerIds = new List<Guid> { Guid.NewGuid() }
         };
 
         // Act
@@ -157,6 +157,53 @@ public class WhenTestingTournamentService
         // Assert
         result.IsFailure.Should().BeTrue();
         result.ValidationErrors.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task ItShouldReturnSuccessWhenRemovingPlayerFromTournament()
+    {
+        // Arrange
+        var response = new Response
+        {
+            ValidationErrors = new List<ValidationFailure>(),
+            ErrorMessage = string.Empty
+        };
+
+        var handler = new MockHttpMessageHandler(response, HttpStatusCode.OK);
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.test.com/") };
+        var service = new TournamentService(httpClient);
+        var tournamentId = Guid.NewGuid();
+        var playerId = Guid.NewGuid();
+
+        // Act
+        var result = await service.RemovePlayerFromTournament(tournamentId, playerId);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ItShouldReturnFailureWhenRemovingPlayerThatDoesNotExist()
+    {
+        // Arrange
+        var response = new Response
+        {
+            ValidationErrors = new List<ValidationFailure>(),
+            ErrorMessage = "Player not found in tournament"
+        };
+
+        var handler = new MockHttpMessageHandler(response, HttpStatusCode.BadRequest);
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.test.com/") };
+        var service = new TournamentService(httpClient);
+        var tournamentId = Guid.NewGuid();
+        var playerId = Guid.NewGuid();
+
+        // Act
+        var result = await service.RemovePlayerFromTournament(tournamentId, playerId);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.ErrorMessage.Should().Contain("Player not found");
     }
 }
 

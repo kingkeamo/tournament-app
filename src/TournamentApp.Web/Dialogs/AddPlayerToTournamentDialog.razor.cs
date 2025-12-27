@@ -20,16 +20,21 @@ public partial class AddPlayerToTournamentDialog : ComponentBase
     private EditContext _editContext = null!;
     private List<PlayerDto>? _players;
     private bool _isSaving;
+    private IReadOnlyCollection<Guid> _selectedPlayerIds = new HashSet<Guid>();
 
     protected override async Task OnInitializedAsync()
     {
         _viewModel.TournamentId = TournamentId;
+        _viewModel.PlayerIds = new List<Guid>();
+        _selectedPlayerIds = new HashSet<Guid>();
         _editContext = new EditContext(_viewModel);
         await LoadPlayers();
     }
 
     private async Task HandleSubmit()
     {
+        _viewModel.PlayerIds = _selectedPlayerIds.ToList();
+        
         if (!_editContext.Validate())
         {
             StateHasChanged();
@@ -38,15 +43,37 @@ public partial class AddPlayerToTournamentDialog : ComponentBase
 
         await HandleValidSubmit();
     }
+    
+    private void OnSelectedValuesChanged(IReadOnlyCollection<Guid> selectedValues)
+    {
+        _selectedPlayerIds = selectedValues;
+        _viewModel.PlayerIds = selectedValues.ToList();
+        _editContext.NotifyFieldChanged(_editContext.Field(nameof(_viewModel.PlayerIds)));
+        StateHasChanged();
+    }
 
     private async Task LoadPlayers()
     {
         try
         {
-            var response = await PlayerService.GetPlayers();
-            if (response.IsSuccess && response.Data != null)
+            // Load all players
+            var playersResponse = await PlayerService.GetPlayers();
+            if (playersResponse.IsSuccess && playersResponse.Data != null)
             {
-                _players = response.Data.ToList();
+                var allPlayers = playersResponse.Data.ToList();
+                
+                // Load tournament to get current players
+                var tournamentResponse = await TournamentService.GetTournament(TournamentId);
+                if (tournamentResponse.IsSuccess && tournamentResponse.Data != null)
+                {
+                    var currentPlayerIds = tournamentResponse.Data.PlayerIds?.ToList() ?? new List<Guid>();
+                    // Filter out players already in the tournament
+                    _players = allPlayers.Where(p => !currentPlayerIds.Contains(p.Id)).ToList();
+                }
+                else
+                {
+                    _players = allPlayers;
+                }
             }
             else
             {
@@ -86,7 +113,11 @@ public partial class AddPlayerToTournamentDialog : ComponentBase
                 return;
             }
 
-            Snackbar.Add("Player added to tournament successfully!", Severity.Success);
+            var playerCount = _viewModel.PlayerIds?.Count ?? 0;
+            var message = playerCount == 1 
+                ? "Player added to tournament successfully!" 
+                : $"{playerCount} players added to tournament successfully!";
+            Snackbar.Add(message, Severity.Success);
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)

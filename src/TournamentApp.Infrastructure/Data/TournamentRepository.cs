@@ -102,6 +102,25 @@ public class TournamentRepository : ITournamentRepository
         await connection.ExecuteAsync(sql, new { TournamentId = tournamentId, PlayerId = playerId });
     }
 
+    public async Task AddPlayersAsync(Guid tournamentId, List<Guid> playerIds)
+    {
+        if (playerIds == null || !playerIds.Any())
+        {
+            return;
+        }
+
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var sql = @"
+            INSERT INTO ""TournamentPlayers"" (""TournamentId"", ""PlayerId"")
+            VALUES (@TournamentId, @PlayerId)
+            ON CONFLICT DO NOTHING";
+
+        var parameters = playerIds.Select(playerId => new { TournamentId = tournamentId, PlayerId = playerId });
+        await connection.ExecuteAsync(sql, parameters);
+    }
+
     public async Task RemovePlayerAsync(Guid tournamentId, Guid playerId)
     {
         using var connection = new NpgsqlConnection(_connectionString);
@@ -126,6 +145,19 @@ public class TournamentRepository : ITournamentRepository
 
         var playerIds = await connection.QueryAsync<Guid>(sql, new { TournamentId = tournamentId });
         return playerIds.ToList();
+    }
+
+    public async Task UpdateStatusAsync(Guid tournamentId, TournamentStatus status)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var sql = @"
+            UPDATE ""Tournaments""
+            SET ""Status"" = @Status
+            WHERE ""Id"" = @TournamentId";
+
+        await connection.ExecuteAsync(sql, new { TournamentId = tournamentId, Status = status.ToString() });
     }
 }
 

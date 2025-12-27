@@ -6,22 +6,21 @@ using TournamentApp.Domain.Entities;
 
 namespace TournamentApp.ApplicationTests.Tournaments.Commands;
 
-public class WhenTestingAddPlayerToTournament
+public class WhenTestingRemovePlayerFromTournament
 {
     [Fact]
     public async Task ItShouldReturnSuccessWhenTournamentAndPlayerExist()
     {
-        // Arrange
         var tournamentRepository = Substitute.For<ITournamentRepository>();
         var playerRepository = Substitute.For<IPlayerRepository>();
-        var handler = new AddPlayerToTournamentHandler(tournamentRepository, playerRepository);
+        var handler = new RemovePlayerFromTournamentHandler(tournamentRepository, playerRepository);
         
         var tournamentId = Guid.NewGuid();
         var playerId = Guid.NewGuid();
-        var command = new AddPlayerToTournamentCommand 
+        var command = new RemovePlayerFromTournamentCommand 
         { 
             TournamentId = tournamentId, 
-            PlayerId = playerId 
+            PlayerId = playerId
         };
 
         var tournament = new Tournament 
@@ -30,7 +29,7 @@ public class WhenTestingAddPlayerToTournament
             Name = "Test Tournament",
             Status = TournamentStatus.Draft,
             CreatedAt = DateTime.UtcNow,
-            PlayerIds = new List<Guid>()
+            PlayerIds = new List<Guid> { playerId }
         };
         var player = new Player 
         { 
@@ -40,60 +39,55 @@ public class WhenTestingAddPlayerToTournament
         };
 
         tournamentRepository.GetByIdAsync(tournamentId).Returns(tournament);
+        tournamentRepository.GetPlayerIdsAsync(tournamentId).Returns(new List<Guid> { playerId });
         playerRepository.GetByIdAsync(playerId).Returns(player);
 
-        // Act
         var response = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         response.IsSuccess.Should().BeTrue();
         response.ErrorMessage.Should().BeEmpty();
 
-        await tournamentRepository.Received(1).AddPlayerAsync(tournamentId, playerId);
+        await tournamentRepository.Received(1).RemovePlayerAsync(tournamentId, playerId);
     }
 
     [Fact]
     public async Task ItShouldReturnFailureWhenTournamentNotFound()
     {
-        // Arrange
         var tournamentRepository = Substitute.For<ITournamentRepository>();
         var playerRepository = Substitute.For<IPlayerRepository>();
-        var handler = new AddPlayerToTournamentHandler(tournamentRepository, playerRepository);
+        var handler = new RemovePlayerFromTournamentHandler(tournamentRepository, playerRepository);
         
         var tournamentId = Guid.NewGuid();
         var playerId = Guid.NewGuid();
-        var command = new AddPlayerToTournamentCommand 
+        var command = new RemovePlayerFromTournamentCommand 
         { 
             TournamentId = tournamentId, 
-            PlayerId = playerId 
+            PlayerId = playerId
         };
 
         tournamentRepository.GetByIdAsync(tournamentId).Returns((Tournament?)null);
 
-        // Act
         var response = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         response.IsFailure.Should().BeTrue();
         response.ErrorMessage.Should().Contain(tournamentId.ToString());
 
-        await tournamentRepository.DidNotReceive().AddPlayerAsync(Arg.Any<Guid>(), Arg.Any<Guid>());
+        await tournamentRepository.DidNotReceive().RemovePlayerAsync(Arg.Any<Guid>(), Arg.Any<Guid>());
     }
 
     [Fact]
     public async Task ItShouldReturnFailureWhenPlayerNotFound()
     {
-        // Arrange
         var tournamentRepository = Substitute.For<ITournamentRepository>();
         var playerRepository = Substitute.For<IPlayerRepository>();
-        var handler = new AddPlayerToTournamentHandler(tournamentRepository, playerRepository);
+        var handler = new RemovePlayerFromTournamentHandler(tournamentRepository, playerRepository);
         
         var tournamentId = Guid.NewGuid();
         var playerId = Guid.NewGuid();
-        var command = new AddPlayerToTournamentCommand 
+        var command = new RemovePlayerFromTournamentCommand 
         { 
             TournamentId = tournamentId, 
-            PlayerId = playerId 
+            PlayerId = playerId
         };
 
         var tournament = new Tournament 
@@ -108,14 +102,55 @@ public class WhenTestingAddPlayerToTournament
         tournamentRepository.GetByIdAsync(tournamentId).Returns(tournament);
         playerRepository.GetByIdAsync(playerId).Returns((Player?)null);
 
-        // Act
         var response = await handler.Handle(command, CancellationToken.None);
 
-        // Assert
         response.IsFailure.Should().BeTrue();
         response.ErrorMessage.Should().Contain(playerId.ToString());
 
-        await tournamentRepository.DidNotReceive().AddPlayerAsync(Arg.Any<Guid>(), Arg.Any<Guid>());
+        await tournamentRepository.DidNotReceive().RemovePlayerAsync(Arg.Any<Guid>(), Arg.Any<Guid>());
+    }
+
+    [Fact]
+    public async Task ItShouldReturnFailureWhenPlayerNotInTournament()
+    {
+        var tournamentRepository = Substitute.For<ITournamentRepository>();
+        var playerRepository = Substitute.For<IPlayerRepository>();
+        var handler = new RemovePlayerFromTournamentHandler(tournamentRepository, playerRepository);
+        
+        var tournamentId = Guid.NewGuid();
+        var playerId = Guid.NewGuid();
+        var otherPlayerId = Guid.NewGuid();
+        var command = new RemovePlayerFromTournamentCommand 
+        { 
+            TournamentId = tournamentId, 
+            PlayerId = playerId
+        };
+
+        var tournament = new Tournament 
+        { 
+            Id = tournamentId, 
+            Name = "Test Tournament",
+            Status = TournamentStatus.Draft,
+            CreatedAt = DateTime.UtcNow,
+            PlayerIds = new List<Guid> { otherPlayerId }
+        };
+        var player = new Player 
+        { 
+            Id = playerId, 
+            Name = "Test Player",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        tournamentRepository.GetByIdAsync(tournamentId).Returns(tournament);
+        tournamentRepository.GetPlayerIdsAsync(tournamentId).Returns(new List<Guid> { otherPlayerId });
+        playerRepository.GetByIdAsync(playerId).Returns(player);
+
+        var response = await handler.Handle(command, CancellationToken.None);
+
+        response.IsFailure.Should().BeTrue();
+        response.ErrorMessage.Should().Contain("not in this tournament");
+
+        await tournamentRepository.DidNotReceive().RemovePlayerAsync(Arg.Any<Guid>(), Arg.Any<Guid>());
     }
 }
 

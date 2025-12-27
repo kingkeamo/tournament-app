@@ -70,4 +70,22 @@ public class TournamentsController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpDelete("{id}/players/{playerId}")]
+    public async Task<IActionResult> RemovePlayerFromTournament(Guid id, Guid playerId)
+    {
+        var command = new RemovePlayerFromTournamentCommand 
+        { 
+            TournamentId = id, 
+            PlayerId = playerId 
+        };
+        
+        var response = await _mediator.Send(command);
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
+    }
 }

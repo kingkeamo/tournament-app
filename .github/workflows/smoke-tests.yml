@@ -33,7 +33,8 @@ jobs:
           echo "Error: WEB_APP_URL environment variable is not set. Please set it in GitHub repository/environment variables."
           exit 1
         fi
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
+        # Follow redirects and get final status code
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L "$WEB_URL")
         if [ "$STATUS" -ne 200 ]; then
           echo "Static site returned status $STATUS for URL: $WEB_URL"
           exit 1

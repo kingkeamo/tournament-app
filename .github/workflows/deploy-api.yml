@@ -39,14 +39,28 @@ jobs:
     - name: Set Fly.io secrets
       if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
       run: |
+        if [ -z "$FLY_APP_NAME" ]; then
+          echo "Error: FLY_APP_NAME is not set. Check that the variable is set in the '${{ github.event.inputs.environment || 'dev' }}' environment."
+          exit 1
+        fi
+        if [ -z "$COGNITO_USER_POOL_ID" ]; then
+          echo "Error: COGNITO_USER_POOL_ID is not set"
+          exit 1
+        fi
+        if [ -z "$COGNITO_AUTHORITY" ]; then
+          echo "Error: COGNITO_AUTHORITY is not set"
+          exit 1
+        fi
         flyctl secrets set \
           ConnectionStrings__DefaultConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
-          Cognito__UserPoolId="${{ vars.COGNITO_USER_POOL_ID }}" \
-          Cognito__Authority="${{ vars.COGNITO_AUTHORITY }}" \
+          Cognito__UserPoolId="$COGNITO_USER_POOL_ID" \
+          Cognito__Authority="$COGNITO_AUTHORITY" \
           --app "$FLY_APP_NAME"
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         FLY_APP_NAME: ${{ vars.FLY_APP_NAME }}
+        COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
+        COGNITO_AUTHORITY: ${{ vars.COGNITO_AUTHORITY }}
 
     - name: Deploy to Fly.io
       working-directory: .

@@ -1,3 +1,155 @@
+/* tournament-app/Dialogs/AddPlayerToTournamentDialog.razor.rz.scp.css */
+/* AddPlayerToTournamentDialog styles */
+[b-hlolayfgcw] .mud-dialog {
+    border-radius: 8px;
+}
+
+[b-hlolayfgcw] .mud-dialog-content {
+    padding: 24px !important;
+    min-height: auto;
+}
+
+[b-hlolayfgcw] .mud-dialog-title {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+    margin-bottom: 0;
+}
+
+[b-hlolayfgcw] .mud-dialog-title .mud-typography {
+    font-weight: 600;
+    color: var(--mud-palette-text-primary);
+}
+
+[b-hlolayfgcw] .mud-button {
+    min-width: 120px;
+    text-transform: none;
+    font-weight: 500;
+}
+
+[b-hlolayfgcw] .mud-select {
+    margin-bottom: 16px;
+}
+
+[b-hlolayfgcw] .mud-dialog-actions {
+    padding: 16px 24px !important;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    margin-top: 8px;
+    gap: 8px;
+}
+/* tournament-app/Dialogs/CreatePlayerDialog.razor.rz.scp.css */
+/* CreatePlayerDialog styles */
+[b-y34krqeabo] .mud-dialog {
+    border-radius: 8px;
+}
+
+[b-y34krqeabo] .mud-dialog-content {
+    padding: 24px !important;
+    min-height: auto;
+}
+
+[b-y34krqeabo] .mud-dialog-title {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+    margin-bottom: 0;
+}
+
+[b-y34krqeabo] .mud-dialog-title .mud-typography {
+    font-weight: 600;
+    color: var(--mud-palette-text-primary);
+}
+
+[b-y34krqeabo] .mud-button {
+    min-width: 120px;
+    text-transform: none;
+    font-weight: 500;
+}
+
+[b-y34krqeabo] .mud-text-field {
+    margin-bottom: 16px;
+}
+
+[b-y34krqeabo] .mud-dialog-actions {
+    padding: 16px 24px !important;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    margin-top: 8px;
+    gap: 8px;
+}
+/* tournament-app/Dialogs/CreateTournamentDialog.razor.rz.scp.css */
+/* CreateTournamentDialog styles */
+[b-0no3i67c3y] .mud-dialog {
+    border-radius: 8px;
+}
+
+[b-0no3i67c3y] .mud-dialog-content {
+    padding: 24px !important;
+    min-height: auto;
+}
+
+[b-0no3i67c3y] .mud-dialog-title {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+    margin-bottom: 0;
+}
+
+[b-0no3i67c3y] .mud-dialog-title .mud-typography {
+    font-weight: 600;
+    color: var(--mud-palette-text-primary);
+}
+
+[b-0no3i67c3y] .mud-button {
+    min-width: 120px;
+    text-transform: none;
+    font-weight: 500;
+}
+
+[b-0no3i67c3y] .mud-text-field {
+    margin-bottom: 16px;
+}
+
+[b-0no3i67c3y] .mud-dialog-actions {
+    padding: 16px 24px !important;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    margin-top: 8px;
+    gap: 8px;
+}
+/* tournament-app/Dialogs/UpdateMatchScoreDialog.razor.rz.scp.css */
+/* UpdateMatchScoreDialog styles */
+[b-9d0demihyj] .mud-dialog {
+    border-radius: 8px;
+}
+
+[b-9d0demihyj] .mud-dialog-content {
+    padding: 24px !important;
+    min-height: auto;
+}
+
+[b-9d0demihyj] .mud-dialog-title {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+    margin-bottom: 0;
+}
+
+[b-9d0demihyj] .mud-dialog-title .mud-typography {
+    font-weight: 600;
+    color: var(--mud-palette-text-primary);
+}
+
+[b-9d0demihyj] .mud-button {
+    min-width: 120px;
+    text-transform: none;
+    font-weight: 500;
+}
+
+[b-9d0demihyj] .mud-numeric-field {
+    margin-bottom: 16px;
+}
+
+[b-9d0demihyj] .mud-dialog-actions {
+    padding: 16px 24px !important;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    margin-top: 8px;
+    gap: 8px;
+}
 /* tournament-app/Layout/MainLayout.razor.rz.scp.css */
 .page[b-td4a6xqdmb] {
     position: relative;
@@ -160,3 +312,45 @@ main[b-td4a6xqdmb] {
         overflow-y: auto;
     }
 }
+/* tournament-app/Pages/Bracket/ViewBracket.razor.rz.scp.css */
+/* ViewBracket page styles */
+
+
+
+
+
+/* tournament-app/Pages/Components/MatchCard.razor.rz.scp.css */
+/* MatchCard component styles */
+
+
+
+
+
+/* tournament-app/Pages/Components/Ui/ValidationErrors.razor.rz.scp.css */
+/* ValidationErrors component styles */
+
+
+
+
+
+/* tournament-app/Pages/Players/AllPlayers.razor.rz.scp.css */
+/* AllPlayers page styles */
+
+
+
+
+
+/* tournament-app/Pages/Tournaments/AllTournaments.razor.rz.scp.css */
+/* AllTournaments page styles */
+
+
+
+
+
+/* tournament-app/Pages/Tournaments/ViewTournament.razor.rz.scp.css */
+/* ViewTournament page styles */
+
+
+
+
+

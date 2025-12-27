@@ -103,7 +103,7 @@ public class AllTournamentsBase : ComponentBase
 
     protected void ViewTournament(Guid tournamentId)
     {
-        NavigationManager.NavigateTo($"/tournaments/{tournamentId}");
+        NavigationManager.NavigateTo($"tournaments/{tournamentId}");
     }
 
     protected async Task GenerateBracket(Guid tournamentId)

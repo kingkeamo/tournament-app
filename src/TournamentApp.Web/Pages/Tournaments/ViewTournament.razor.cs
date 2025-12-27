@@ -151,7 +151,7 @@ public class ViewTournamentBase : ComponentBase
 
     protected void ViewBracket()
     {
-        NavigationManager.NavigateTo($"/tournaments/{_tournamentIdGuid}/bracket");
+        NavigationManager.NavigateTo($"tournaments/{_tournamentIdGuid}/bracket");
     }
 
     private async Task LoadPlayers()

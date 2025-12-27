@@ -19,7 +19,7 @@ jobs:
 
     - name: Test static site
       run: |
-        WEB_URL="${{ secrets.WEB_APP_URL }}"
+        WEB_URL="${{ vars.WEB_APP_URL }}"
         STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$WEB_URL")
         if [ "$STATUS" -ne 200 ]; then
           echo "Static site returned status $STATUS for URL: $WEB_URL"
@@ -29,7 +29,7 @@ jobs:
 
     - name: Test API health endpoint
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL }}/health)
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ vars.FLY_APP_URL }}/health)
         if [ "$STATUS" -ne 200 ]; then
           echo "API health endpoint returned status $STATUS"
           exit 1
@@ -38,7 +38,7 @@ jobs:
 
     - name: Test API database check
       run: |
-        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.FLY_APP_URL }}/dbcheck)
+        STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ vars.FLY_APP_URL }}/dbcheck)
         if [ "$STATUS" -ne 200 ]; then
           echo "API database check returned status $STATUS"
           exit 1
@@ -47,7 +47,7 @@ jobs:
 
     - name: Validate Cognito OpenID configuration
       run: |
-        COGNITO_DOMAIN="${{ secrets.COGNITO_DOMAIN }}"
+        COGNITO_DOMAIN="${{ vars.COGNITO_DOMAIN }}"
         OPENID_CONFIG=$(curl -s https://${COGNITO_DOMAIN}/.well-known/openid-configuration)
         if [ -z "$OPENID_CONFIG" ] || echo "$OPENID_CONFIG" | grep -q "error"; then
           echo "Cognito OpenID configuration is not accessible"

@@ -131,6 +131,7 @@ public class WhenTestingCreatePlayer : TestContext
         submitButton!.Click();
 
         // Assert - Check that validation error message is displayed in the UI
+        // Dummy checkin
         component.WaitForAssertion(() =>
         {
             component.Markup.Should().Contain("Player name is required");

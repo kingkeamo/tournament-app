@@ -75,9 +75,15 @@
         {
             { "MatchId", Match.Id }
         };
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var options = new DialogOptions 
+        { 
+            CloseOnEscapeKey = true, 
+            MaxWidth = MaxWidth.Small, 
+            FullWidth = true,
+            CloseButton = true
+        };
 
-        var dialog = await DialogService.ShowAsync<UpdateMatchScoreDialog>("Update Match Score", parameters, options);
+        var dialog = await DialogService.ShowAsync<UpdateMatchScoreDialog>(null, parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

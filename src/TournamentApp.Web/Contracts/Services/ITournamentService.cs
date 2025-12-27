@@ -13,12 +13,16 @@ public interface ITournamentService
 
 public class CreateTournamentViewModel
 {
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Tournament name is required")]
+    [System.ComponentModel.DataAnnotations.MaxLength(255, ErrorMessage = "Tournament name cannot exceed 255 characters")]
     public string Name { get; set; } = string.Empty;
 }
 
 public class AddPlayerToTournamentViewModel
 {
     public Guid TournamentId { get; set; }
+    
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Please select a player")]
     public Guid PlayerId { get; set; }
 }
 

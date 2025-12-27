@@ -84,9 +84,15 @@ public class AllTournamentsBase : ComponentBase
     protected async Task ShowCreateDialog()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var options = new DialogOptions 
+        { 
+            CloseOnEscapeKey = true, 
+            MaxWidth = MaxWidth.Small, 
+            FullWidth = true,
+            CloseButton = true
+        };
 
-        var dialog = await DialogService.ShowAsync<CreateTournamentDialog>("Create Tournament", parameters, options);
+        var dialog = await DialogService.ShowAsync<CreateTournamentDialog>(null, parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

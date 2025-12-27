@@ -1,17 +1,48 @@
 @using MudBlazor
 
-<TitleContent>
-    <MudText Typo="Typo.h6">Update Match Score</MudText>
-</TitleContent>
-<DialogContent>
-    <EditForm Model="@_viewModel" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <MudNumericField @bind-Value="_viewModel.Score1" Label="Player 1 Score" Variant="Variant.Outlined" Min="0" Class="mb-3" />
-        <MudNumericField @bind-Value="_viewModel.Score2" Label="Player 2 Score" Variant="Variant.Outlined" Min="0" Class="mb-3" />
-        <MudAlert Severity="Severity.Info" Class="mb-3">
-            Note: Scores cannot be equal. One player must win.
-        </MudAlert>
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_isSaving">
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Update Match Score</MudText>
+    </TitleContent>
+    <DialogContent>
+        <EditForm EditContext="@_editContext">
+            <DataAnnotationsValidator />
+            <MudGrid Class="mb-3">
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_viewModel.Score1" 
+                                     Label="Player 1 Score" 
+                                     Variant="Variant.Outlined" 
+                                     Min="0" 
+                                     HelperText="Enter score for player 1" />
+                    <ValidationMessage For="@(() => _viewModel.Score1)" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_viewModel.Score2" 
+                                     Label="Player 2 Score" 
+                                     Variant="Variant.Outlined" 
+                                     Min="0" 
+                                     HelperText="Enter score for player 2" />
+                    <ValidationMessage For="@(() => _viewModel.Score2)" />
+                </MudItem>
+            </MudGrid>
+            <MudAlert Severity="Severity.Info" Class="mb-4" Dense="true">
+                <MudText Typo="Typo.caption">Note: Scores cannot be equal. One player must win.</MudText>
+            </MudAlert>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton ButtonType="ButtonType.Button" 
+                   Variant="Variant.Text" 
+                   Color="Color.Default" 
+                   OnClick="Cancel">
+            Cancel
+        </MudButton>
+        <MudButton ButtonType="ButtonType.Button" 
+                   Variant="Variant.Filled" 
+                   Color="Color.Primary" 
+                   Disabled="@_isSaving"
+                   OnClick="HandleSubmit"
+                   StartIcon="@Icons.Material.Filled.Save">
             @if (_isSaving)
             {
                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -22,8 +53,5 @@
                 <MudText>Update Score</MudText>
             }
         </MudButton>
-        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Text" Color="Color.Default" OnClick="Cancel" Class="ms-2">
-            Cancel
-        </MudButton>
-    </EditForm>
-</DialogContent>
+    </DialogActions>
+</MudDialog>

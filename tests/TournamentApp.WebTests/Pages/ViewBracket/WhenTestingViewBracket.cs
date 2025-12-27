@@ -87,7 +87,7 @@ public class WhenTestingViewBracket : TestContext
 
         // Act
         var component = RenderComponent<TournamentApp.Web.Pages.Bracket.ViewBracket>(parameters => parameters
-            .Add(p => p.TournamentId, tournamentId));
+            .Add(p => p.TournamentId, tournamentId.ToString()));
 
         // Assert
         component.Markup.Should().Contain("Test Tournament");
@@ -111,7 +111,7 @@ public class WhenTestingViewBracket : TestContext
 
         // Act
         var component = RenderComponent<TournamentApp.Web.Pages.Bracket.ViewBracket>(parameters => parameters
-            .Add(p => p.TournamentId, tournamentId));
+            .Add(p => p.TournamentId, tournamentId.ToString()));
 
         // Assert
         snackbar.Received().Add("Bracket not found", Severity.Error);

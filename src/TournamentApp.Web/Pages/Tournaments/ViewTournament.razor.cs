@@ -88,9 +88,15 @@ public class ViewTournamentBase : ComponentBase
         {
             { "TournamentId", _tournamentIdGuid }
         };
-        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+        var options = new DialogOptions 
+        { 
+            CloseOnEscapeKey = true, 
+            MaxWidth = MaxWidth.Small, 
+            FullWidth = true,
+            CloseButton = true
+        };
 
-        var dialog = await DialogService.ShowAsync<AddPlayerToTournamentDialog>("Add Player to Tournament", parameters, options);
+        var dialog = await DialogService.ShowAsync<AddPlayerToTournamentDialog>(null, parameters, options);
         var result = await dialog.Result;
 
         if (!result.Canceled)

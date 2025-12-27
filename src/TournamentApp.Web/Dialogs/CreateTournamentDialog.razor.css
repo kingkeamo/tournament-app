@@ -1,2 +1,37 @@
 /* CreateTournamentDialog styles */
+::deep .mud-dialog {
+    border-radius: 8px;
+}
 
+::deep .mud-dialog-content {
+    padding: 24px !important;
+    min-height: auto;
+}
+
+::deep .mud-dialog-title {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+    margin-bottom: 0;
+}
+
+::deep .mud-dialog-title .mud-typography {
+    font-weight: 600;
+    color: var(--mud-palette-text-primary);
+}
+
+::deep .mud-button {
+    min-width: 120px;
+    text-transform: none;
+    font-weight: 500;
+}
+
+::deep .mud-text-field {
+    margin-bottom: 16px;
+}
+
+::deep .mud-dialog-actions {
+    padding: 16px 24px !important;
+    border-top: 1px solid var(--mud-palette-lines-default);
+    margin-top: 8px;
+    gap: 8px;
+}

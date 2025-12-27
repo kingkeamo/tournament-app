@@ -11,6 +11,8 @@ public interface IPlayerService
 
 public class AddPlayerViewModel
 {
+    [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Player name is required")]
+    [System.ComponentModel.DataAnnotations.MaxLength(255, ErrorMessage = "Player name cannot exceed 255 characters")]
     public string Name { get; set; } = string.Empty;
 }
 

@@ -60,7 +60,7 @@ public class WhenTestingViewTournament : TestContext
 
         // Act
         var component = RenderComponent<TournamentApp.Web.Pages.Tournaments.ViewTournament>(parameters => parameters
-            .Add(p => p.TournamentId, tournamentId));
+            .Add(p => p.TournamentId, tournamentId.ToString()));
 
         // Assert
         component.Markup.Should().Contain("Test Tournament");
@@ -82,7 +82,7 @@ public class WhenTestingViewTournament : TestContext
 
         // Act
         var component = RenderComponent<TournamentApp.Web.Pages.Tournaments.ViewTournament>(parameters => parameters
-            .Add(p => p.TournamentId, tournamentId));
+            .Add(p => p.TournamentId, tournamentId.ToString()));
 
         // Assert
         snackbar.Received().Add("Tournament not found", Severity.Error);
@@ -119,7 +119,7 @@ public class WhenTestingViewTournament : TestContext
 
         // Act
         var component = RenderComponent<TournamentApp.Web.Pages.Tournaments.ViewTournament>(parameters => parameters
-            .Add(p => p.TournamentId, tournamentId));
+            .Add(p => p.TournamentId, tournamentId.ToString()));
 
         // Assert
         tournamentService.Received().GetTournament(tournamentId);

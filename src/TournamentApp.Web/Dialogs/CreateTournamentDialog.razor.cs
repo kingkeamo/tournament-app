@@ -1,5 +1,6 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using TournamentApp.Web.Contracts.Services;
 using TournamentApp.Web.Responses;
@@ -13,7 +14,24 @@ public partial class CreateTournamentDialog : ComponentBase
     [Inject] protected ISnackbar Snackbar { get; set; } = null!;
 
     private CreateTournamentViewModel _viewModel = new();
+    private EditContext _editContext = null!;
     private bool _isSaving;
+
+    protected override void OnInitialized()
+    {
+        _editContext = new EditContext(_viewModel);
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!_editContext.Validate())
+        {
+            StateHasChanged();
+            return;
+        }
+
+        await HandleValidSubmit();
+    }
 
     private async Task HandleValidSubmit()
     {

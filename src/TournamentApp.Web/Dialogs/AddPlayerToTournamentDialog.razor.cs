@@ -1,5 +1,6 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using TournamentApp.Shared;
 using TournamentApp.Web.Contracts.Services;
@@ -16,13 +17,26 @@ public partial class AddPlayerToTournamentDialog : ComponentBase
     [Inject] protected ISnackbar Snackbar { get; set; } = null!;
 
     private AddPlayerToTournamentViewModel _viewModel = new();
+    private EditContext _editContext = null!;
     private List<PlayerDto>? _players;
     private bool _isSaving;
 
     protected override async Task OnInitializedAsync()
     {
         _viewModel.TournamentId = TournamentId;
+        _editContext = new EditContext(_viewModel);
         await LoadPlayers();
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (!_editContext.Validate())
+        {
+            StateHasChanged();
+            return;
+        }
+
+        await HandleValidSubmit();
     }
 
     private async Task LoadPlayers()

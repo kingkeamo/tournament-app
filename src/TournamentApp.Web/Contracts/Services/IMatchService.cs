@@ -10,7 +10,11 @@ public interface IMatchService
 public class UpdateMatchScoreViewModel
 {
     public Guid MatchId { get; set; }
+    
+    [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue, ErrorMessage = "Score must be 0 or greater")]
     public int Score1 { get; set; }
+    
+    [System.ComponentModel.DataAnnotations.Range(0, int.MaxValue, ErrorMessage = "Score must be 0 or greater")]
     public int Score2 { get; set; }
 }
 

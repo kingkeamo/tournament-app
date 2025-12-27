@@ -7,8 +7,10 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="bunit" Version="1.35.3" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
@@ -24,7 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TournamentApp.Web\TournamentApp.Web.csproj" />
+    <ProjectReference Include="..\..\src\TournamentApp.Web\TournamentApp.Web.csproj">
+      <IncludeAssets>all</IncludeAssets>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\TournamentApp.Shared\TournamentApp.Shared.csproj" />
   </ItemGroup>
 

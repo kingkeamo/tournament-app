@@ -41,9 +41,9 @@ jobs:
       run: |
         flyctl secrets set \
           ConnectionStrings__DefaultConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
-          Cognito__UserPoolId="${{ secrets.COGNITO_USER_POOL_ID }}" \
-          Cognito__Authority="${{ secrets.COGNITO_AUTHORITY }}" \
-          --app ${{ secrets.FLY_APP_NAME }}
+          Cognito__UserPoolId="${{ vars.COGNITO_USER_POOL_ID }}" \
+          Cognito__Authority="${{ vars.COGNITO_AUTHORITY }}" \
+          --app ${{ vars.FLY_APP_NAME }}
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -51,7 +51,7 @@ jobs:
       working-directory: .
       run: |
         flyctl deploy \
-          --app ${{ secrets.FLY_APP_NAME }} \
+          --app ${{ vars.FLY_APP_NAME }} \
           --remote-only
       env:
         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -59,9 +59,9 @@ jobs:
     - name: Health check
       run: |
         sleep 30
-        curl -f ${{ secrets.FLY_APP_URL }}/health || exit 1
+        curl -f ${{ vars.FLY_APP_URL }}/health || exit 1
 
     - name: Database check
       run: |
-        curl -f ${{ secrets.FLY_APP_URL }}/dbcheck || exit 1
+        curl -f ${{ vars.FLY_APP_URL }}/dbcheck || exit 1
 

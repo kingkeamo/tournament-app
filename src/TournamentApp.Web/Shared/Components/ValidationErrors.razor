@@ -1,0 +1,24 @@
+@using MudBlazor
+@using FluentValidation.Results
+@using TournamentApp.Web.Responses
+
+@if (Errors != null && Errors.Any())
+{
+    <MudAlert Severity="Severity.Error" Class="mt-4">
+        <MudText Typo="Typo.h6">Validation Errors</MudText>
+        <MudList T="ValidationFailure">
+            @foreach (var error in Errors)
+            {
+                <MudListItem T="ValidationFailure">
+                    <MudText>@error.ErrorMessage</MudText>
+                </MudListItem>
+            }
+        </MudList>
+    </MudAlert>
+}
+
+@code {
+    [Parameter]
+    public IList<ValidationFailure>? Errors { get; set; }
+}
+

@@ -6,12 +6,22 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>tournament-app</StaticWebAssetBasePath>
     <GenerateStaticWebAssetsManifest>true</GenerateStaticWebAssetsManifest>
+    <IsPackable>false</IsPackable>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.12" PrivateAssets="all" />
     <PackageReference Include="MudBlazor" Version="8.15.0" />
+    <PackageReference Include="coverlet.msbuild" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

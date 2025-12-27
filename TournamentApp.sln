@@ -17,13 +17,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.Web", "src\To
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{13D2AE9B-41CD-4F62-BF31-AC878A7891AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.UnitTests", "tests\TournamentApp.UnitTests\TournamentApp.UnitTests.csproj", "{61468495-B28B-43F6-B9D0-CA0B60C92B88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.ApplicationTests", "tests\TournamentApp.ApplicationTests\TournamentApp.ApplicationTests.csproj", "{61468495-B28B-43F6-B9D0-CA0B60C92B88}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.ApiTests", "tests\TournamentApp.ApiTests\TournamentApp.ApiTests.csproj", "{F91C9429-EB48-4F32-B8F1-286887783005}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.IntegrationTests", "tests\TournamentApp.IntegrationTests\TournamentApp.IntegrationTests.csproj", "{D2B0150E-D3D7-449A-90FF-D2D5C69C8242}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.Shared", "src\TournamentApp.Shared\TournamentApp.Shared.csproj", "{38D8EA24-9952-49E9-8855-DA3C9D893FD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentApp.WebTests", "tests\TournamentApp.WebTests\TournamentApp.WebTests.csproj", "{E75ADD6F-F3F4-4FF7-8469-E612A6CF0C88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +72,10 @@ Global
 		{38D8EA24-9952-49E9-8855-DA3C9D893FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38D8EA24-9952-49E9-8855-DA3C9D893FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38D8EA24-9952-49E9-8855-DA3C9D893FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E75ADD6F-F3F4-4FF7-8469-E612A6CF0C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E75ADD6F-F3F4-4FF7-8469-E612A6CF0C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E75ADD6F-F3F4-4FF7-8469-E612A6CF0C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E75ADD6F-F3F4-4FF7-8469-E612A6CF0C88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CA2B9644-3032-429B-BBE0-08939F964B01} = {800123DB-F359-46D8-86B6-CF9E002B06B3}
@@ -81,5 +87,6 @@ Global
 		{F91C9429-EB48-4F32-B8F1-286887783005} = {13D2AE9B-41CD-4F62-BF31-AC878A7891AD}
 		{D2B0150E-D3D7-449A-90FF-D2D5C69C8242} = {13D2AE9B-41CD-4F62-BF31-AC878A7891AD}
 		{38D8EA24-9952-49E9-8855-DA3C9D893FD0} = {800123DB-F359-46D8-86B6-CF9E002B06B3}
+		{E75ADD6F-F3F4-4FF7-8469-E612A6CF0C88} = {13D2AE9B-41CD-4F62-BF31-AC878A7891AD}
 	EndGlobalSection
 EndGlobal

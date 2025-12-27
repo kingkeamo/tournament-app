@@ -1,0 +1,95 @@
+@using MudBlazor
+@using TournamentApp.Shared
+@using TournamentApp.Web.Dialogs
+
+<MudCard Elevation="2" Class="mb-3">
+    <MudCardContent>
+        <MudText Typo="Typo.h6" Class="mb-2">Match @Match.Position</MudText>
+        <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(Match.Status)" Class="mb-2">
+            @Match.Status
+        </MudChip>
+        
+        @if (Match.Player1Id.HasValue)
+        {
+            <MudText Class="mb-1">Player 1: @GetPlayerName(Match.Player1Id.Value)</MudText>
+            <MudText Typo="Typo.h5" Class="mb-2">@Match.Score1</MudText>
+        }
+        else
+        {
+            <MudText Class="mb-1">Player 1: TBD</MudText>
+        }
+
+        <MudText Class="mb-1">vs</MudText>
+
+        @if (Match.Player2Id.HasValue)
+        {
+            <MudText Class="mb-1">Player 2: @GetPlayerName(Match.Player2Id.Value)</MudText>
+            <MudText Typo="Typo.h5" Class="mb-2">@Match.Score2</MudText>
+        }
+        else
+        {
+            <MudText Class="mb-1">Player 2: TBD</MudText>
+        }
+
+        @if (Match.WinnerId.HasValue)
+        {
+            <MudAlert Severity="Severity.Success" Class="mt-2">
+                Winner: @GetPlayerName(Match.WinnerId.Value)
+            </MudAlert>
+        }
+
+        @if (Match.Status == "Pending" && Match.Player1Id.HasValue && Match.Player2Id.HasValue)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(async () => await ShowScoreDialog())" Class="mt-2">
+                Update Score
+            </MudButton>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public MatchDto Match { get; set; } = null!;
+    [Parameter] public EventCallback OnScoreUpdate { get; set; }
+    [Inject] protected IDialogService DialogService { get; set; } = null!;
+
+    private MudBlazor.Color GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Pending" => Color.Default,
+            "InProgress" => Color.Info,
+            "Completed" => Color.Success,
+            _ => Color.Default
+        };
+    }
+
+    private string GetPlayerName(Guid playerId)
+    {
+        // TODO: Load player names from service
+        return $"Player {playerId}";
+    }
+
+    private async Task ShowScoreDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            { "MatchId", Match.Id }
+        };
+        var options = new DialogOptions 
+        { 
+            CloseOnEscapeKey = true, 
+            MaxWidth = MaxWidth.Small, 
+            FullWidth = true,
+            CloseButton = true
+        };
+
+        var dialog = await DialogService.ShowAsync<UpdateMatchScoreDialog>(null, parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await OnScoreUpdate.InvokeAsync();
+        }
+    }
+}
+

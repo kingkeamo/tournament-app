@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
+using TournamentApp.Application;
 using TournamentApp.Infrastructure;
 using TournamentApp.Infrastructure.DbUp;
 
@@ -11,8 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add MediatR
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.Load("TournamentApp.Application")));
+// Add Application layer (MediatR, FluentValidation, etc.)
+builder.Services.AddTournamentAppApplication();
 
 // Add Infrastructure (repositories, DbUp, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);

@@ -1,9 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TournamentApp.Application.Commands;
-using TournamentApp.Application.Queries;
-using TournamentApp.Shared;
+using TournamentApp.Application.Players.Commands;
+using TournamentApp.Application.Players.Queries;
 
 namespace TournamentApp.Api.Controllers;
 
@@ -20,17 +19,26 @@ public class PlayersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Guid>> CreatePlayer([FromBody] AddPlayerCommand command)
+    public async Task<IActionResult> CreatePlayer([FromBody] AddPlayerCommand command)
     {
-        var id = await _mediator.Send(command);
-        return Ok(id);
+        var response = await _mediator.Send(command);
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<PlayerDto>>> GetPlayers()
+    public async Task<IActionResult> GetPlayers()
     {
-        var players = await _mediator.Send(new GetPlayersQuery());
-        return Ok(players);
+        var response = await _mediator.Send(new GetPlayersQuery());
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
 }
-

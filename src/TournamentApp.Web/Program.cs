@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using TournamentApp.Web;
+using TournamentApp.Web.Contracts.Services;
+using TournamentApp.Web.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -40,6 +42,12 @@ if (!apiBaseUrl.EndsWith("/"))
 }
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+
+// Register services
+builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
+builder.Services.AddScoped<IBracketService, BracketService>();
+builder.Services.AddScoped<IMatchService, MatchService>();
 
 // Add MudBlazor
 builder.Services.AddMudServices();

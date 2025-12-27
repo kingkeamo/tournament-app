@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TournamentApp.Application.Commands;
+using TournamentApp.Application.Matches.Commands;
 
 namespace TournamentApp.Api.Controllers;
 
@@ -25,8 +25,12 @@ public class MatchesController : ControllerBase
             return BadRequest("Match ID mismatch");
         }
 
-        await _mediator.Send(command);
-        return Ok();
+        var response = await _mediator.Send(command);
+        if (response.IsFailure)
+        {
+            return BadRequest(response);
+        }
+
+        return Ok(response);
     }
 }
-

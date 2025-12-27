@@ -1,0 +1,53 @@
+@page "/tournaments"
+@inherits AllTournamentsBase
+
+<PageTitle>Tournaments</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Tournaments</MudText>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(async () => await ShowCreateDialog())">
+    Create Tournament
+</MudButton>
+
+<ValidationErrors Errors="@_validationErrors" />
+
+@if (_errorMessage != null)
+{
+    <MudAlert Severity="Severity.Error" Class="mt-4">
+        <MudText Typo="Typo.h6">Error Loading Tournaments</MudText>
+        <MudText>@_errorMessage</MudText>
+    </MudAlert>
+}
+else if (_tournaments == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-3" />
+}
+else if (_tournaments.Count == 0)
+{
+    <MudText Class="mt-4">No tournaments found. Create one to get started!</MudText>
+}
+else
+{
+    <MudTable Items="@_tournaments" Hover="true" Striped="true" Dense="true" Class="mt-4">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Created</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Status">
+                <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(context.Status)">@context.Status</MudChip>
+            </MudTd>
+            <MudTd DataLabel="Created">@context.CreatedAt.ToString("g")</MudTd>
+            <MudTd DataLabel="Actions">
+                <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                    <MudButton StartIcon="@Icons.Material.Filled.Visibility" OnClick="@(() => ViewTournament(context.Id))">View</MudButton>
+                    <MudButton StartIcon="@Icons.Material.Filled.PlayArrow" OnClick="@(() => GenerateBracket(context.Id))">Generate Bracket</MudButton>
+                </MudButtonGroup>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
